@@ -19,7 +19,7 @@ class CustomSquare extends StatelessWidget {
         height: 200,
         width: 200,
         padding: const EdgeInsets.all(8),
-        color: Colors.teal[300],
+        color: Colors.red[300],
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

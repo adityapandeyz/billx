@@ -1,13 +1,15 @@
-class OfflineBill {
-  OfflineBill({
+class SplitBill {
+  SplitBill({
     this.id,
     required this.firmId,
     required this.createdAt,
     required this.invoice,
     required this.items,
+    required this.cashAmount,
+    required this.onlineAmount,
     required this.netAmount,
     required this.totalTax,
-    required this.modeOfPayment,
+    required this.onlinePaymentMode,
     required this.totalQuantity,
     required this.discAmount,
   });
@@ -22,26 +24,32 @@ class OfflineBill {
 
   String items;
 
+  double cashAmount;
+
+  double onlineAmount;
+
   double netAmount;
 
   double totalTax;
 
-  String modeOfPayment;
+  String onlinePaymentMode;
 
   int totalQuantity;
 
   double discAmount;
 
-  factory OfflineBill.fromJson(Map<String, dynamic> json) {
-    return OfflineBill(
+  factory SplitBill.fromJson(Map<String, dynamic> json) {
+    return SplitBill(
       id: json['id'],
       firmId: json['firmId'],
       createdAt: DateTime.parse(json['createdAt']).toIso8601String(),
       invoice: json['invoice'],
       items: json['items'],
+      cashAmount: json['cashAmount'],
+      onlineAmount: json['onlineAmount'],
       netAmount: json['netAmount'] ?? 0,
       totalTax: json['totalTax'] ?? 0,
-      modeOfPayment: json['modeOfPayment'],
+      onlinePaymentMode: json['onlinePaymentMode'],
       totalQuantity: json['totalQuantity'],
       discAmount: json['discAmount'],
     );
@@ -54,11 +62,13 @@ class OfflineBill {
       'createdAt': createdAt,
       'invoice': invoice,
       'items': items,
+      'cashAmount': cashAmount,
+      'OnlineAmount': onlineAmount,
       'netAmount': netAmount,
       'totalTax': totalTax,
-      'modeOfPayment': modeOfPayment,
+      'onlinePaymentMode': onlinePaymentMode,
       'totalQuantity': totalQuantity,
-      'discAmount': discAmount
+      'discAmount': discAmount,
     };
   }
 }

@@ -2,87 +2,41 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
-import '../helpers/database_helper.dart';
 import '../models/category.dart';
 import '../providers/current_firm_provider.dart';
+import '../providers/category_provider.dart'; // Import CategoryProvider
+import '../providers/items_provider.dart';
 import '../utils/utils.dart';
 import '../widgets/custom_page.dart';
 import '../widgets/custom_textfield.dart';
+import '../widgets/delete_icon_button.dart';
 import '../widgets/green_add_button.dart';
 
 class CategoryPage extends StatefulWidget {
-  const CategoryPage({super.key});
+  const CategoryPage({Key? key}) : super(key: key);
 
   @override
   State<CategoryPage> createState() => _CategoryPageState();
 }
 
 class _CategoryPageState extends State<CategoryPage> {
-  List<Category>? _itemCategory;
-  Exception? _connectionException;
   TextEditingController categoryNameController = TextEditingController();
-  TextEditingController categoryCodeController = TextEditingController();
-
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void dispose() {
     categoryNameController.dispose();
-    categoryCodeController.dispose();
     _searchController.dispose();
     super.dispose();
-  }
-
-  void _connectionFailed(dynamic exception) {
-    setState(() {
-      _itemCategory = null;
-      _connectionException = exception;
-    });
-  }
-
-  List<Category>? _filteredItemCategory;
-  void _loadItemCategories() async {
-    try {
-      final itemCategories = await DatabaseHelper.instance.getCategories(
-          Provider.of<CurrentFirmProvider>(context, listen: false)
-              .currentFirmId);
-      setState(() {
-        _itemCategory = itemCategories;
-        _filteredItemCategory = _itemCategory; // Initialize filtered list
-      });
-    } catch (e) {
-      _connectionFailed(e);
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _loadItemCategories();
-  }
-
-  Future<void> _createItemCategory(Category itemCategory) async {
-    try {
-      await DatabaseHelper.instance.createCategory(itemCategory);
-      _loadItemCategories();
-    } catch (e) {
-      _connectionFailed(e);
-    }
-  }
-
-  Future<void> _deleteItemCategory(id) async {
-    try {
-      await DatabaseHelper.instance.deleteCategory(id);
-      _loadItemCategories();
-    } catch (e) {
-      _connectionFailed(e);
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     final firmId =
         Provider.of<CurrentFirmProvider>(context, listen: false).currentFirmId;
+
+    Provider.of<CategoryProvider>(context, listen: false)
+        .loadItemCategories(context);
 
     return CustomPage(
       onClose: () {
@@ -99,18 +53,8 @@ class _CategoryPageState extends State<CategoryPage> {
               label: 'Search Category',
               controller: _searchController,
               onChanged: (value) {
-                // Update the filtered list based on the search input
-                setState(() {
-                  _filteredItemCategory = _itemCategory!
-                      .where((category) =>
-                          category.name
-                              .toLowerCase()
-                              .contains(value.toLowerCase()) ||
-                          category.categoryId
-                              .toLowerCase()
-                              .contains(value.toLowerCase()))
-                      .toList();
-                });
+                Provider.of<CategoryProvider>(context, listen: false)
+                    .filterCategories(context, value);
               },
             ),
             const SizedBox(
@@ -118,7 +62,8 @@ class _CategoryPageState extends State<CategoryPage> {
             ),
             GreenAddButton(
               function: () {
-                addCategory(firmId);
+                addCategory(firmId,
+                    Provider.of<CategoryProvider>(context, listen: false));
               },
             )
           ],
@@ -126,75 +71,74 @@ class _CategoryPageState extends State<CategoryPage> {
         const SizedBox(
           height: 30,
         ),
-        _itemCategory == null
-            ? noDataIcon()
-            : SizedBox(
-                height: 650,
-                child: ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: _filteredItemCategory!.length,
-                  shrinkWrap: true,
-                  itemBuilder: (BuildContext context, int index) {
-                    return Card(
-                      color: actionColor,
-                      margin: const EdgeInsets.all(20),
-                      child: ListTile(
-                        // onTap: () {
-                        //   Navigator.of(context).push(
-                        //     MaterialPageRoute(
-                        //       builder: (_) => AddItemPage(
-                        //         categoryName:
-                        //             _itemCategory![index].name.toString(),
-                        //         categoryCode: _itemCategory![index].id.toString(),
-                        //         // firmId: firmInfo!.toString()
-                        //       ),
-                        //     ),
-                        //   );
-                        // },
-                        leading: const SizedBox(
-                          width: 60,
-                          child: Icon(
-                            FontAwesomeIcons.box,
-                            color: Colors.white,
-                          ),
-                        ),
-                        title: Text(
-                          _filteredItemCategory![index].name.toString(),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        subtitle: Text(
-                          _filteredItemCategory![index].categoryId.toString(),
-                        ),
-                        trailing: IconButton(
-                          icon: const Icon(
-                            Icons.delete,
-                            color: Colors.red,
-                          ),
-                          onPressed: () {
-                            var itemCatogoryIndex =
-                                _filteredItemCategory![index];
+        Consumer<CategoryProvider>(builder: (context, categoryProvider, _) {
+          final filteredItems = categoryProvider.filteredItemCategory;
 
-                            setState(() {
-                              _filteredItemCategory!.remove(itemCatogoryIndex);
-                            });
+          filteredItems?.sort(
+              (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
 
-                            _deleteItemCategory(itemCatogoryIndex);
-                          },
+          return (filteredItems == null || filteredItems.isEmpty)
+              ? noDataIcon()
+              : SizedBox(
+                  height: 650,
+                  child: ListView.builder(
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: filteredItems.length,
+                    shrinkWrap: true,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Card(
+                        color: actionColor,
+                        margin: const EdgeInsets.all(20),
+                        child: ListTile(
+                          leading: const SizedBox(
+                            width: 60,
+                            child: Icon(
+                              FontAwesomeIcons.box,
+                              color: Colors.white,
+                            ),
+                          ),
+                          title: Text(
+                            filteredItems[index].name.toString(),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          subtitle: Text(
+                            filteredItems[index].categoryId.toString(),
+                          ),
+                          trailing: IconButton(
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return Dialog(
+                                    child: EditCategory(
+                                      categoryName: filteredItems[index].name,
+                                      categoryId:
+                                          filteredItems[index].categoryId,
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                            icon: const Icon(
+                              FontAwesomeIcons.edit,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-              ),
+                      );
+                    },
+                  ),
+                );
+        }),
         const Spacer(),
       ],
     );
   }
 
-  addCategory(firmId) {
+  addCategory(firmId, CategoryProvider categoryProvider) {
     showDialog(
       context: context,
       builder: (context) {
@@ -204,15 +148,8 @@ class _CategoryPageState extends State<CategoryPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               CustomTextfield(
-                label: 'Category Name',
+                label: 'Category Name (Alphanumeric)',
                 controller: categoryNameController,
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              CustomTextfield(
-                label: 'Category Code (Alphanumeric)',
-                controller: categoryCodeController,
               ),
             ],
           ),
@@ -223,51 +160,168 @@ class _CategoryPageState extends State<CategoryPage> {
               ),
               onPressed: () {
                 Navigator.pop(context);
-
-                categoryCodeController.clear();
                 categoryNameController.clear();
               },
             ),
             ElevatedButton(
               child: const Text(
-                "OK",
+                "Add",
               ),
               onPressed: () async {
                 Navigator.pop(context);
 
-                if (categoryNameController.text.isEmpty ||
-                    categoryCodeController.text.isEmpty) {
+                if (categoryNameController.text.isEmpty) {
                   return;
                 }
 
                 try {
+                  var categoryCode =
+                      '${categoryNameController.text.trim().replaceAll(RegExp(r'\s+'), '')}c${categoryProvider.itemCategories!.length + 1} ';
+                  var name = categoryNameController.text
+                      .trim()
+                      .replaceAll(RegExp(r'\s+'), '')
+                      .toLowerCase();
+
+                  for (var cat in categoryProvider.itemCategoryList!) {
+                    if (cat.name
+                            .trim()
+                            .replaceAll(RegExp(r'\s+'), '')
+                            .toLowerCase() ==
+                        name) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Category already exist!'),
+                        ),
+                      );
+                      categoryNameController.clear();
+                      return;
+                    }
+                  }
+
                   var itemCategory = Category(
                     name: categoryNameController.text.trim(),
-                    categoryId:
-                        categoryCodeController.text.trim().toLowerCase(),
+                    categoryId: categoryCode.toString().toLowerCase().trim(),
                     firmId: firmId.toString(),
                   );
-                  _itemCategory!.add(itemCategory);
-                  _createItemCategory(itemCategory);
-                  categoryCodeController.clear();
+
+                  categoryProvider.createItemCategory(itemCategory, context);
                   categoryNameController.clear();
                 } catch (e) {
                   showAlert(
                     context,
                     e.toString(),
                   );
-
                   return;
                 }
-                showAlert(
-                  context,
-                  'Category Added to Database!',
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Category added to database.'),
+                  ),
                 );
               },
             ),
           ],
         );
       },
+    );
+  }
+}
+
+class EditCategory extends StatefulWidget {
+  String categoryName;
+  String categoryId;
+  EditCategory({
+    Key? key,
+    required this.categoryName,
+    required this.categoryId,
+  }) : super(key: key);
+
+  @override
+  State<EditCategory> createState() => _EditCategoryState();
+}
+
+class _EditCategoryState extends State<EditCategory> {
+  TextEditingController categoryNameController = TextEditingController();
+
+  TextEditingController categoryIdController = TextEditingController();
+
+  String _selectedCategory = '';
+  String firmdId = '';
+
+  @override
+  void dispose() {
+    categoryNameController.dispose();
+    categoryIdController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    firmdId = Provider.of<CurrentFirmProvider>(context).currentFirmId;
+    final categoryProvider = Provider.of<CategoryProvider>(context);
+
+    return SizedBox(
+      width: 600,
+      height: 380,
+      child: AlertDialog(
+        title: const Text('Edit Category'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CustomTextfield(
+              label: 'Name: ${widget.categoryName}',
+              controller: categoryNameController,
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            CustomTextfield(
+              label: 'Id: ${widget.categoryId}',
+              controller: categoryIdController,
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              try {
+                Category? existingCategory = await categoryProvider
+                    .getCategoryWithId(widget.categoryId, context);
+
+                if (existingCategory != null) {
+                  existingCategory.name = categoryNameController.text.isEmpty
+                      ? existingCategory.name
+                      : categoryNameController.text;
+
+                  existingCategory.categoryId =
+                      categoryIdController.text.isEmpty
+                          ? existingCategory.categoryId
+                          : categoryIdController.text;
+                  categoryProvider.updateCategory(existingCategory, context);
+                } else {
+                  showDownAlert(context,
+                      'Category with ID ${widget.categoryId} not found.');
+                }
+                Navigator.of(context).pop();
+                showDownAlert(context, 'Category updated.');
+              } catch (e) {
+                print(e);
+                return;
+              }
+            },
+            child: const Text('Update'),
+          )
+        ],
+      ),
     );
   }
 }

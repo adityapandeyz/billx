@@ -4,6 +4,7 @@ import '../models/barcode.dart';
 class BarcodeProvider extends ChangeNotifier {
   final List<Barcode> _barcodes = [];
 
+  double discAmount = 0.0;
   List<Barcode> get barcodes => _barcodes;
 
   void addItem(Barcode barcode) {
@@ -27,26 +28,90 @@ class BarcodeProvider extends ChangeNotifier {
     }
   }
 
+  double calculateTotalSumOfRates() {
+    double totalSum = 0;
+
+    for (var barcode in barcodes) {
+      if (!barcode.isBeingReturned) {
+        totalSum += barcode.rate * barcode.quantity;
+      }
+    }
+
+    return (totalSum - discAmount);
+  }
+
+  double calculateTotalSumOfRatesForReturn() {
+    double totalReturnSum = 0;
+
+    for (var barcode in barcodes) {
+      if (barcode.isBeingReturned) {
+        totalReturnSum += barcode.rate * barcode.quantity;
+      }
+    }
+
+    return totalReturnSum;
+  }
+
+  int calculateTotalQuantity() {
+    int totalQuantity = 0;
+
+    for (var barcode in barcodes) {
+      if (!barcode.isBeingReturned) {
+        totalQuantity += barcode.quantity;
+      }
+    }
+
+    return totalQuantity;
+  }
+
+  int calculateTotalReturnQuantity() {
+    int totalReturnQuantity = 0;
+
+    for (var barcode in barcodes) {
+      if (barcode.isBeingReturned) {
+        totalReturnQuantity += barcode.quantity;
+      }
+    }
+
+    return totalReturnQuantity;
+  }
+
   GstTotals calculateGstForAll() {
     GstTotals gstTotals = GstTotals();
 
-    for (var barcode in _barcodes) {
-      // Assuming barcode.rate is used to determine CGST and SGST, update as needed
-      if (barcode.rate < 1000) {
-        barcode.cgst = barcode.rate * 0.025 * barcode.quantity; // 2.5%
-        barcode.sgst = barcode.rate * 0.025 * barcode.quantity; // 2.5%
-      } else {
-        barcode.cgst = barcode.rate * 0.06 * barcode.quantity; // 6%
-        barcode.sgst = barcode.rate * 0.06 * barcode.quantity; // 6%
-      }
+    for (var barcode in barcodes) {
+      if (!barcode.isBeingReturned) {
+        double gstRate = determineGstRate(barcode.rate);
 
-      gstTotals.totalCgst += barcode.cgst;
-      gstTotals.totalSgst += barcode.sgst;
+        // Calculate exclusive GST amount
+        double gstAmountExclusive = (barcode.rate * gstRate) / 100;
+
+        // Calculate inclusive GST amount
+        double gstAmountInclusive = gstAmountExclusive / (1 + gstRate / 100);
+
+        // Calculate inclusive rate
+        double inclusiveRate = barcode.rate + gstAmountInclusive;
+
+        // Calculate CGST and SGST based on inclusive rate
+        barcode.cgst = gstAmountInclusive / 2;
+        barcode.sgst = gstAmountInclusive / 2;
+
+        // Update totals
+        gstTotals.totalCgst += barcode.cgst * barcode.quantity;
+        gstTotals.totalSgst += barcode.sgst * barcode.quantity;
+        gstTotals.totalTax += gstAmountInclusive * barcode.quantity;
+      }
     }
 
-    gstTotals.totalTax = gstTotals.totalCgst + gstTotals.totalSgst;
-
     return gstTotals;
+  }
+
+  double determineGstRate(int rate) {
+    if (rate <= 1000) {
+      return 5.0; // 5% GST for rate not exceeding Rs. 1000
+    } else {
+      return 12.0; // 12% GST for rate exceeding Rs. 1000
+    }
   }
 }
 

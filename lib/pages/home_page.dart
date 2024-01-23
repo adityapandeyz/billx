@@ -2,8 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../providers/category_provider.dart';
 import '../providers/current_firm_provider.dart';
 import '../widgets/custom_square.dart';
+
+import '../providers/items_provider.dart';
+import '../providers/offline_bill_provider.dart';
+import '../providers/online_bill_provider.dart';
+import '../providers/split_bill_provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,6 +21,20 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
+    Provider.of<OfflineBillProvider>(context, listen: false)
+        .loadOfflineBills(context);
+
+    Provider.of<OnlineBillProvider>(context, listen: false)
+        .loadOnBills(context);
+
+    Provider.of<SplitBillProvider>(context, listen: false)
+        .loadSplitBills(context);
+
+    Provider.of<ItemProvider>(context, listen: false).loadItems(context);
+
+    Provider.of<CategoryProvider>(context, listen: false)
+        .loadItemCategories(context);
+
     return Consumer<CurrentFirmProvider>(
         builder: (context, currentFirm, child) {
       return Scaffold(
@@ -74,31 +94,6 @@ class _HomePageState extends State<HomePage> {
                     width: 20,
                   ),
                   CustomSquare(
-                    icons: FontAwesomeIcons.googlePay,
-                    title: 'Online Bills',
-                    ontap: () {
-                      Navigator.pushNamed(context, '/on_bills');
-                    },
-                  ),
-                  const SizedBox(
-                    width: 20,
-                  ),
-                  CustomSquare(
-                    icons: FontAwesomeIcons.moneyBills,
-                    title: 'Offline Bills',
-                    ontap: () {
-                      Navigator.pushNamed(context, '/off_bills');
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CustomSquare(
                     icons: FontAwesomeIcons.boxArchive,
                     title: 'Categories',
                     ontap: () {
@@ -113,6 +108,41 @@ class _HomePageState extends State<HomePage> {
                     title: 'Items',
                     ontap: () {
                       Navigator.pushNamed(context, '/items');
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CustomSquare(
+                    icons: FontAwesomeIcons.scissors,
+                    title: 'Splited Bills',
+                    ontap: () {
+                      Navigator.pushNamed(context, '/split_bills');
+                    },
+                  ),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  CustomSquare(
+                    icons: FontAwesomeIcons.googlePay,
+                    title: 'Online Bills',
+                    ontap: () {
+                      Navigator.pushNamed(context, '/on_bills');
+                    },
+                  ),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  CustomSquare(
+                    icons: FontAwesomeIcons.moneyBills,
+                    title: 'Offline Bills',
+                    ontap: () {
+                      Navigator.pushNamed(context, '/off_bills');
                     },
                   ),
                 ],

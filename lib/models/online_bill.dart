@@ -9,6 +9,7 @@ class OnlineBill {
     required this.totalTax,
     required this.modeOfPayment,
     required this.totalQuantity,
+    required this.discAmount,
   });
 
   int? id;
@@ -29,6 +30,8 @@ class OnlineBill {
 
   int totalQuantity;
 
+  double discAmount;
+
   factory OnlineBill.fromJson(Map<String, dynamic> json) {
     return OnlineBill(
       id: json['id'],
@@ -40,6 +43,7 @@ class OnlineBill {
       totalTax: json['totalTax'] ?? 0,
       modeOfPayment: json['modeOfPayment'],
       totalQuantity: json['totalQuantity'],
+      discAmount: json['discAmount'],
     );
   }
 
@@ -54,6 +58,7 @@ class OnlineBill {
       'totalTax': totalTax,
       'modeOfPayment': modeOfPayment,
       'totalQuantity': totalQuantity,
+      'discAmount': discAmount,
     };
   }
 }

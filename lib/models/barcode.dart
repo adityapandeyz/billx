@@ -9,6 +9,7 @@ class Barcode {
     required this.cgst,
     required this.sgst,
     required this.itemId,
+    required this.isBeingReturned,
   });
 
   String barcode;
@@ -29,6 +30,8 @@ class Barcode {
 
   String itemId;
 
+  bool isBeingReturned;
+
   Map<String, dynamic> toJson() {
     return {
       'barcode': barcode,
@@ -40,16 +43,7 @@ class Barcode {
       'cgst': cgst,
       'sgst': sgst,
       'itemId': itemId,
+      'isBeingReturned': isBeingReturned,
     };
-  }
-
-  void calculateGst(Barcode bill) {
-    if (bill.rate < 1000) {
-      bill.cgst = bill.rate * 0.025 * bill.quantity; // 2.5%
-      bill.sgst = bill.rate * 0.025 * bill.quantity; // 2.5%
-    } else {
-      bill.cgst = bill.rate * 0.06 * bill.quantity; // 6%
-      bill.sgst = bill.rate * 0.06 * bill.quantity; // 6%
-    }
   }
 }

@@ -8,14 +8,29 @@ import '../providers/current_firm_provider.dart';
 
 Future<void> printPdf(
   CurrentFirmProvider firmData, {
+  isSplit = false,
   invoice = '',
   required dateTime,
   totalQuantity = 0,
   netAmount = 0,
-  itemsList,
-  gstDetails,
+  required itemsList,
+  required gstDetails,
+  cashAmount = 0,
+  onlineAmount = 0,
   required String selectedModeOfPayment,
+  discAmount,
 }) async {
+  final List<Map<String, dynamic>> returnedItems = [];
+  final List<Map<String, dynamic>> nonReturnedItems = [];
+
+  for (var itemData in itemsList) {
+    if (itemData['isBeingReturned'] == true) {
+      returnedItems.add(itemData);
+    } else {
+      nonReturnedItems.add(itemData);
+    }
+  }
+
   final pdf = pw.Document();
 
   // Load NotoSans font with different styles
@@ -80,13 +95,13 @@ Future<void> printPdf(
               children: [
                 pw.Text(
                   'Invoice# $invoice',
-                  style: pw.TextStyle(font: regularFont, fontSize: 7),
+                  style: pw.TextStyle(font: boldFont, fontSize: 8),
                 ),
                 pw.Spacer(),
                 pw.Text(
                   // DateTime.now().toString(),
                   'Date: ${DateFormat('EEE dd-MM-yyyy').format(dateTime).toString()}',
-                  style: pw.TextStyle(font: regularFont, fontSize: 7),
+                  style: pw.TextStyle(font: boldFont, fontSize: 8),
                 ),
               ],
             ),
@@ -106,67 +121,136 @@ Future<void> printPdf(
                 textAlign: pw.TextAlign.center,
               ),
             ),
-            pw.SizedBox(height: 8),
+            pw.Divider(),
 
-            // Items with proper categorization (Header row bold)
             pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
               children: [
-                for (var header in ['Item', 'Qty', 'Rate', 'Amount'])
-                  pw.Text(
-                    header,
-                    style: pw.TextStyle(font: boldFont, fontSize: 8),
-                  ),
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(
+                      'Item',
+                      style: pw.TextStyle(font: boldFont, fontSize: 8),
+                    ),
+                  ],
+                ),
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(
+                      'Qty',
+                      style: pw.TextStyle(font: boldFont, fontSize: 8),
+                    ),
+                  ],
+                ),
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(
+                      'Rate',
+                      style: pw.TextStyle(font: boldFont, fontSize: 8),
+                    ),
+                  ],
+                ),
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(
+                      'Amount',
+                      style: pw.TextStyle(font: boldFont, fontSize: 8),
+                    ),
+                  ],
+                ),
               ],
             ),
-            for (var itemData in itemsList)
+            for (var itemData in nonReturnedItems)
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [
                   pw.Column(
-                      mainAxisAlignment: pw.MainAxisAlignment.start,
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Text(
-                          itemData['name'].toString(),
-                          style: pw.TextStyle(font: regularFont, fontSize: 8),
-                        ),
-                        pw.Row(
-                            mainAxisAlignment: pw.MainAxisAlignment.start,
-                            children: [
-                              // pw.Text(
-                              //   'Category: ${itemData['category'].toString()}',
-                              //   style: pw.TextStyle(
-                              //       font: regularFont, fontSize: 5),
-                              // ),
-                              // pw.SizedBox(width: 3),
-                              pw.Text(
-                                'Size: ${itemData['size'].toString()}',
-                                style: pw.TextStyle(
-                                    font: regularFont, fontSize: 5),
-                              ),
-                            ]),
-                        pw.Text(
-                          itemData['barcode'].toString(),
-                          style: pw.TextStyle(font: regularFont, fontSize: 7),
-                        ),
-                        pw.SizedBox(height: 5),
-                      ]),
-                  pw.Text(
-                    itemData['quantity'].toString(),
-                    style: pw.TextStyle(font: regularFont, fontSize: 8),
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        '${itemData['name']}',
+                        style: pw.TextStyle(font: regularFont, fontSize: 9),
+                      ),
+                    ],
                   ),
-                  pw.Text(
-                    '₹${itemData['rate'].toString()}',
-                    style: pw.TextStyle(font: regularFont, fontSize: 8),
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        '${itemData['quantity']}',
+                        style: pw.TextStyle(font: regularFont, fontSize: 9),
+                      ),
+                    ],
                   ),
-                  pw.Text(
-                    '₹${(itemData['rate'] * itemData['quantity']).toString()}',
-                    style: pw.TextStyle(font: regularFont, fontSize: 8),
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        '${itemData['rate']}',
+                        style: pw.TextStyle(font: regularFont, fontSize: 9),
+                      ),
+                    ],
+                  ),
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        '${(itemData['rate'] * itemData['quantity'])}',
+                        style: pw.TextStyle(font: boldFont, fontSize: 9),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            pw.SizedBox(height: 8),
+
+            for (var itemData in returnedItems)
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        '${itemData['name']}',
+                        style: pw.TextStyle(font: regularFont, fontSize: 9),
+                      ),
+                    ],
+                  ),
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        '- ${itemData['quantity']}',
+                        style: pw.TextStyle(font: regularFont, fontSize: 9),
+                      ),
+                    ],
+                  ),
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        '${itemData['rate']}',
+                        style: pw.TextStyle(font: regularFont, fontSize: 9),
+                      ),
+                    ],
+                  ),
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        '- ${(itemData['rate'] * itemData['quantity'])}',
+                        style: pw.TextStyle(font: boldFont, fontSize: 9),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+
+            pw.Divider(),
 
             // Total Quantity and Net Amount
             pw.Row(
@@ -174,21 +258,21 @@ Future<void> printPdf(
               mainAxisSize: pw.MainAxisSize.min,
               children: [
                 pw.Text(
-                  'Total Quantity:',
-                  style: pw.TextStyle(font: regularFont, fontSize: 7),
+                  'Total Items:',
+                  style: pw.TextStyle(font: boldFont, fontSize: 7),
                 ),
                 pw.SizedBox(width: 5),
                 pw.Text(
                   totalQuantity.toString(),
-                  style: pw.TextStyle(font: regularFont, fontSize: 12),
+                  style: pw.TextStyle(font: boldFont, fontSize: 12),
                 ),
                 pw.Spacer(),
                 pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.end,
                   children: [
                     pw.Text(
-                      'Net Amt.:',
-                      style: pw.TextStyle(font: regularFont, fontSize: 7),
+                      'Net Amt.:(INR)',
+                      style: pw.TextStyle(font: boldFont, fontSize: 7),
                     ),
                     pw.Text(
                       '(incl. of GST)',
@@ -198,19 +282,52 @@ Future<void> printPdf(
                 ),
                 pw.SizedBox(width: 5),
                 pw.Text(
-                  '₹$netAmount',
-                  style: pw.TextStyle(font: regularFont, fontSize: 12),
+                  ' $netAmount',
+                  style: pw.TextStyle(font: boldFont, fontSize: 12),
                 ),
               ],
             ),
-            pw.SizedBox(height: 4),
-            pw.Text(
-              'Mode of Payment: $selectedModeOfPayment',
-              style: pw.TextStyle(font: italicFont, fontSize: 7),
-            ),
-            // GST details with a smaller font
-            pw.SizedBox(height: 4),
+            discAmount != 0.0
+                ? pw.Column(
+                    children: [
+                      pw.Divider(),
+                      pw.Text(
+                        'Disc. Amount: Rs. $discAmount',
+                        style: pw.TextStyle(font: boldFont, fontSize: 8),
+                      ),
+                    ],
+                  )
+                : pw.SizedBox(),
+            pw.Divider(),
+            isSplit == false
+                ? pw.Text(
+                    'Mode of Payment: $selectedModeOfPayment',
+                    style: pw.TextStyle(font: boldFont, fontSize: 8),
+                  )
+                : pw.Column(
+                    children: [
+                      pw.Text(
+                        'Split Bill',
+                        style: pw.TextStyle(font: regularFont, fontSize: 8),
+                      ),
+                      pw.SizedBox(height: 3),
+                      pw.Text(
+                        'Cash Amt.: $cashAmount',
+                        style: pw.TextStyle(font: boldFont, fontSize: 9),
+                      ),
+                      pw.SizedBox(height: 3),
+                      pw.Text(
+                        'Online Amt.: $onlineAmount',
+                        style: pw.TextStyle(font: boldFont, fontSize: 9),
+                      ),
+                      pw.Text(
+                        'Mode: $selectedModeOfPayment',
+                        style: pw.TextStyle(font: boldFont, fontSize: 8),
+                      ),
+                    ],
+                  ),
 
+            pw.Divider(),
             pw.Column(
               children: [
                 pw.Text(
@@ -219,39 +336,25 @@ Future<void> printPdf(
                 ),
                 pw.SizedBox(height: 3),
                 pw.Text(
-                  'Total SGST: ₹${gstDetails.totalSgst}, Total CGST: ₹${gstDetails.totalCgst}',
-                  style: pw.TextStyle(font: italicFont, fontSize: 8),
+                  'Total SGST: ${gstDetails.totalSgst.toStringAsFixed(2)}, Total CGST: ${gstDetails.totalCgst.toStringAsFixed(2)}',
+                  style: pw.TextStyle(font: regularFont, fontSize: 8),
                 ),
                 pw.Text(
-                  'Total Tax: ₹${gstDetails.totalTax}',
-                  style: pw.TextStyle(font: italicFont, fontSize: 8),
+                  'Total Tax: Rs. ${gstDetails.totalTax.toStringAsFixed(2)}',
+                  style: pw.TextStyle(font: regularFont, fontSize: 8),
                 ),
                 // pw.SizedBox(height: 5),
-                pw.Text(
-                  '---',
-                  style: pw.TextStyle(font: italicFont, fontSize: 5),
-                ),
-                // pw.SizedBox(height: 5),
-                pw.Text(
-                  'For item less than ₹1000 => CGST(2.5%) + SGST(2.5%)',
-                  style: pw.TextStyle(font: italicFont, fontSize: 5),
-                ),
-                pw.Text(
-                  'For item greater than ₹1000 => CGST(6.0%) + SGST(6.0%)',
-                  style: pw.TextStyle(font: italicFont, fontSize: 5),
-                ),
               ],
             ),
             pw.SizedBox(height: 8),
             pw.BarcodeWidget(
               barcode: pw.Barcode.code128(),
               height: 35,
-              data: invoice.toString(),
+              data: invoice.toString().toLowerCase(),
               // errorBuilder: (context, error) => Center(child: Text(error)),
             ),
             // Footer
             pw.SizedBox(height: 5),
-
             pw.Container(
               padding: const pw.EdgeInsets.all(8),
               decoration: const pw.BoxDecoration(
@@ -275,7 +378,7 @@ Future<void> printPdf(
 
   await Printing.layoutPdf(
     onLayout: (PdfPageFormat format) async => bytes,
-    name: 'example.pdf',
+    name: 'billx_invoice.pdf',
     format: format,
     dynamicLayout: true,
   );

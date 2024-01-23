@@ -164,8 +164,12 @@ class _FirmsPageState extends State<FirmsPage> {
                                                   listen: false)
                                               .setCurrentFirm(
                                             firmName: _firms[index].name,
-                                            firmId: _firms[index].firmId,
-                                            gstin: _firms[index].gstin,
+                                            firmId: _firms[index]
+                                                .firmId
+                                                .toLowerCase(),
+                                            gstin: _firms[index]
+                                                .gstin
+                                                .toUpperCase(),
                                             phone: _firms[index].phone,
                                             address: _firms[index].address,
                                           );
@@ -296,13 +300,13 @@ class _FirmsPageState extends State<FirmsPage> {
 
                 try {
                   String firmId =
-                      '${shortenText(firmNameController.text).toUpperCase().replaceAll(' ', '')}${_firms.isNotEmpty ? _firms.last.id : 1 + 1}';
+                      '${shortenText(firmNameController.text).toLowerCase().replaceAll(' ', '')}${_firms.isNotEmpty ? _firms.last.id : 0 + 1}';
 
                   if (!context.mounted) return;
 
                   int result = await DatabaseHelper.instance.createFirm(
                     firmName: firmNameController.text.trim(),
-                    firmId: firmId.toUpperCase().trim(),
+                    firmId: firmId.toLowerCase().trim(),
                     gstin: firmGSTINContoller.text.toUpperCase().trim(),
                     phone: firmPhoneNoController.text.trim(),
                     address: firmAddressController.text.trim(),

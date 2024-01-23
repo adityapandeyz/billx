@@ -1,10 +1,12 @@
 import 'dart:io' as io;
 
+import 'package:billx/models/split_bill.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../models/category.dart';
+import '../models/fabric.dart';
 import '../models/item.dart';
 import '../models/offline_bill.dart';
 import '../models/online_bill.dart';
@@ -35,7 +37,8 @@ class DatabaseHelper {
 
     // create path to store the database
     final io.Directory appDirectory = await getApplicationDocumentsDirectory();
-    String dbPath = p.join(appDirectory.path, 'databases', 'billx_database.db');
+    String dbPath =
+        p.join(appDirectory.path, 'databases', 'billx_database1.db');
 
     final dbFactory = databaseFactoryFfi;
 
@@ -102,6 +105,21 @@ class DatabaseHelper {
   );
 ''');
 
+// // Create 'fabric' table
+//     await db.execute('''
+//   CREATE TABLE IF NOT EXISTS fabric (
+//     id INTEGER PRIMARY KEY,
+//     name TEXT NOT NULL,
+//     fabricId TEXT NOT NULL,
+//     totalStock REAL NOT NULL,
+//     totalStockSold REAL NOT NULL,
+//     pricePerUnit REAL NOT NULL,
+//     manufacturer TEXT NOT NULL,
+//     fabricType TEXT NOT NULL,
+//     firmId TEXT NOT NULL
+//   );
+// ''');
+
 // Create 'offline_bill' table
     await db.execute('''
   CREATE TABLE IF NOT EXISTS offline_bill (
@@ -113,7 +131,8 @@ class DatabaseHelper {
     netAmount REAL NOT NULL,
     totalTax REAL NOT NULL,
     modeOfPayment TEXT NOT NULL,
-    totalQuantity INTEGER NOT NULL
+    totalQuantity INTEGER NOT NULL,
+    discAmount REAL NOT NULL,
   );
 ''');
 
@@ -128,7 +147,26 @@ class DatabaseHelper {
     netAmount REAL NOT NULL,
     totalTax REAL NOT NULL,
     modeOfPayment TEXT NOT NULL,
-    totalQuantity INTEGER NOT NULL
+    totalQuantity INTEGER NOT NULL,
+    discAmount REAL NOT NULL,
+  );
+''');
+
+// Create 'split_bill' table
+    await db.execute('''
+  CREATE TABLE IF NOT EXISTS split_bill (
+    id INTEGER PRIMARY KEY,
+    firmId TEXT NOT NULL,
+    createdAt TEXT NOT NULL,
+    invoice TEXT NOT NULL,
+    items TEXT NOT NULL,  -- Use TEXT for JSON
+    cashAmount REAL NOT NULL,
+    onlineAmount REAL NOT NULL,
+    netAmount REAL NOT NULL,
+    totalTax REAL NOT NULL,
+    onlinePaymentMode TEXT NOT NULL,
+    totalQuantity INTEGER NOT NULL,
+    discAmount REAL NOT NULL,
   );
 ''');
   }
@@ -193,12 +231,12 @@ class DatabaseHelper {
     );
   }
 
-  Future<void> deleteCategory(int categoryId) async {
+  Future<void> deleteCategory(Category category) async {
     final db = await database;
     await db.delete(
       'category',
       where: 'id = ?',
-      whereArgs: [categoryId],
+      whereArgs: [category.categoryId],
     );
   }
 
@@ -207,6 +245,16 @@ class DatabaseHelper {
     final db = await database;
     await db.insert('items', item.toJson(),
         conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  Future<void> updateItem(Item item) async {
+    final db = await database;
+    await db.update(
+      'items',
+      item.toJson(),
+      where: 'id = ?',
+      whereArgs: [item.id],
+    );
   }
 
   Future<List<Item>> getAllItems(String currentFirmId) async {
@@ -227,7 +275,7 @@ class DatabaseHelper {
     await db.delete('items', where: 'id = ?', whereArgs: [item.id]);
   }
 
-  // bills
+  // offline bills
   Future<List<OfflineBill>> getOfflineBills(String currentFirmId) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
@@ -245,11 +293,22 @@ class DatabaseHelper {
     await db.insert('offline_bill', offlineBill.toJson());
   }
 
+  Future<void> updateOfflineBill(OfflineBill offlineBill) async {
+    final db = await database;
+    await db.update(
+      'offline_bill',
+      offlineBill.toJson(),
+      where: 'id = ?',
+      whereArgs: [offlineBill.id],
+    );
+  }
+
   Future<void> deleteOfflineBill(int billId) async {
     final db = await database;
     await db.delete('offline_bill', where: 'id = ?', whereArgs: [billId]);
   }
 
+  // online bill
   Future<List<OnlineBill>> getOnlineBills(String currentFirmId) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
@@ -267,8 +326,85 @@ class DatabaseHelper {
     await db.insert('online_bill', onlineBill.toJson());
   }
 
+  Future<void> updateOnlineBill(OnlineBill onlineBill) async {
+    final db = await database;
+    await db.update(
+      'online_bill',
+      onlineBill.toJson(),
+      where: 'id = ?',
+      whereArgs: [onlineBill.id],
+    );
+  }
+
   Future<void> deleteOnlineBill(int id) async {
     final db = await database;
     await db.delete('online_bill', where: 'id = ?', whereArgs: [id]);
   }
+
+  // split bill
+  Future<List<SplitBill>> getSplitBills(String currentFirmId) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'split_bill',
+      where: 'firmId = ?',
+      whereArgs: [currentFirmId],
+    );
+    return List.generate(maps.length, (i) {
+      return SplitBill.fromJson(maps[i]);
+    });
+  }
+
+  Future<void> insertSplitBill(SplitBill splitBill) async {
+    final db = await database;
+    await db.insert('split_bill', splitBill.toJson());
+  }
+
+  Future<void> updateSplitBill(SplitBill splitBill) async {
+    final db = await database;
+    await db.update(
+      'split_bill',
+      splitBill.toJson(),
+      where: 'id = ?',
+      whereArgs: [splitBill.id],
+    );
+  }
+
+  Future<void> deleteSplitBill(int id) async {
+    final db = await database;
+    await db.delete('split_bill', where: 'id = ?', whereArgs: [id]);
+  }
+
+  // Future<void> insertFabric(Fabric fabric) async {
+  //   final db = await database;
+  //   await db.insert('fabric', fabric.toJson(),
+  //       conflictAlgorithm: ConflictAlgorithm.replace);
+  // }
+
+  // Future<List<Fabric>> getAllFabrics(String currentFirmId) async {
+  //   final db = await database;
+  //   final List<Map<String, dynamic>> maps = await db.query(
+  //     'fabric',
+  //     where: 'firmId = ?',
+  //     whereArgs: [currentFirmId],
+  //   );
+
+  //   return List.generate(maps.length, (i) {
+  //     return Fabric.fromJson(maps[i]);
+  //   });
+  // }
+
+  // Future<void> updateFabric(Fabric fabric) async {
+  //   final db = await database;
+  //   await db.update(
+  //     'fabric',
+  //     fabric.toJson(),
+  //     where: 'id = ?',
+  //     whereArgs: [fabric.id],
+  //   );
+  // }
+
+  // Future<void> deleteFabric(int fabricId) async {
+  //   final db = await database;
+  //   await db.delete('fabric', where: 'id = ?', whereArgs: [fabricId]);
+  // }
 }

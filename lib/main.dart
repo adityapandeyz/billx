@@ -1,21 +1,27 @@
+// import 'package:billx/pages/custom_fabric_page.dart';
 import 'package:billx/pages/splash_screen.dart';
+import 'package:billx/pages/split_bills_page.dart';
+import 'package:billx/providers/category_provider.dart';
+import 'package:billx/providers/offline_bill_provider.dart';
+import 'package:billx/providers/online_bill_provider.dart';
+import 'package:billx/providers/split_bill_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'helpers/database_helper.dart';
 import 'pages/category_page.dart';
 import 'pages/create_new_bill_page.dart';
 import 'pages/firms_page.dart';
 import 'pages/home_page.dart';
-import 'pages/items_page.dart';
+import 'pages/item_page.dart';
 import 'pages/offline_bills_page.dart';
 import 'pages/online_bills_page.dart';
 import 'providers/barcode_provider.dart';
 import 'providers/current_firm_provider.dart';
+import 'providers/items_provider.dart';
 
 /// create a reference for the sqlite database that
 /// we can refer to in other parts of the app
@@ -51,13 +57,28 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(
           create: (_) => BarcodeProvider(),
         ),
+        ChangeNotifierProvider(
+          create: (_) => ItemProvider(context),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => CategoryProvider(context),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => OnlineBillProvider(context),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => OfflineBillProvider(context),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => SplitBillProvider(context),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'BillX',
         theme: ThemeData(
-          brightness: Brightness.dark,
-          scaffoldBackgroundColor: Colors.black,
+          brightness: Brightness.light,
+          scaffoldBackgroundColor: Colors.white,
           primaryColor: const Color.fromARGB(94, 68, 137, 255),
           textTheme: TextTheme(
             bodyLarge: GoogleFonts.getFont('Lato'),
@@ -76,7 +97,7 @@ class _MyAppState extends State<MyApp> {
             titleTextStyle: GoogleFonts.getFont(
               'Lato',
               textStyle: const TextStyle(
-                color: Colors.white,
+                color: Color.fromARGB(255, 0, 0, 0),
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -88,9 +109,11 @@ class _MyAppState extends State<MyApp> {
           '/home': (context) => const HomePage(),
           '/category': (context) => const CategoryPage(),
           '/items': (context) => const ItemPage(),
+          // '/custom_fabric': (context) => const CustomFabricPage(),
           '/create_bill': (context) => const CreateNewBillPage(),
           '/on_bills': (context) => const OnlineBillsPage(),
           '/off_bills': (context) => const OfflineBillsPage(),
+          '/split_bills': (context) => const SplitBillsPage(),
           '/splash': (context) => const SplashScreen(),
         },
       ),

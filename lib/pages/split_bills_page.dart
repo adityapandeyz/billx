@@ -2,27 +2,40 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../providers/offline_bill_provider.dart';
-
-import '../utils/utils.dart';
+import '../providers/split_bill_provider.dart';
 import '../widgets/custom_page.dart';
 import '../widgets/custom_textfield.dart';
 import '../widgets/delete_icon_button.dart';
 import '../widgets/show_bill_details_widget.dart';
+import '../utils/utils.dart';
 
-class OfflineBillsPage extends StatelessWidget {
-  const OfflineBillsPage({Key? key}) : super(key: key);
+class SplitBillsPage extends StatefulWidget {
+  const SplitBillsPage({Key? key}) : super(key: key);
+
+  @override
+  _SplitBillsPageState createState() => _SplitBillsPageState();
+}
+
+class _SplitBillsPageState extends State<SplitBillsPage> {
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<OfflineBillProvider>(context, listen: false)
-        .loadOfflineBills(context);
+    SplitBillProvider splitBillProvider =
+        Provider.of<SplitBillProvider>(context, listen: false);
 
+    splitBillProvider.loadSplitBills(context);
     return CustomPage(
       onClose: () {
         Navigator.of(context).pop();
       },
-      title: 'Offline Bills',
+      title: 'Split Bills',
       widget: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -31,31 +44,30 @@ class OfflineBillsPage extends StatelessWidget {
           children: [
             CustomTextfield(
               label: 'Search Bill',
+              controller: _searchController,
               onChanged: (value) {
-                Provider.of<OfflineBillProvider>(context, listen: false)
-                    .filterBills(context, value);
+                splitBillProvider.filterBills(context, value);
               },
-              controller: TextEditingController(),
             ),
           ],
         ),
         const SizedBox(
           height: 30,
         ),
-        Consumer<OfflineBillProvider>(
+        Consumer<SplitBillProvider>(
           builder: (context, offlineBillProvider, child) {
-            return offlineBillProvider.offlineBills == null
+            return splitBillProvider.splitBills == null
                 ? noDataIcon()
                 : SizedBox(
                     height: 650,
                     child: ListView.builder(
                       physics: const BouncingScrollPhysics(),
-                      itemCount:
-                          offlineBillProvider.filteredOfflineBills!.length,
+                      itemCount: splitBillProvider.filteredSplitBills!.length,
                       shrinkWrap: true,
                       itemBuilder: (BuildContext context, int index) {
-                        final offlineBill =
-                            offlineBillProvider.filteredOfflineBills![index];
+                        var splitBill =
+                            splitBillProvider.filteredSplitBills![index];
+
                         return Card(
                           color: actionColor,
                           margin: const EdgeInsets.all(20),
@@ -63,14 +75,23 @@ class OfflineBillsPage extends StatelessWidget {
                             onTap: () {
                               showBillDetails(
                                 context,
-                                offlineBillProvider.filteredOfflineBillList,
-                                offlineBill.invoice,
-                                offlineBill.firmId,
-                                offlineBill.netAmount,
-                                offlineBill.totalQuantity,
-                                offlineBill.totalTax,
-                                offlineBill.createdAt,
-                                isCash: true,
+                                splitBillProvider.filteredSplitBills,
+                                splitBill.invoice,
+                                splitBill.firmId,
+                                splitBill.netAmount,
+                                splitBill.totalQuantity,
+                                splitBill.totalTax,
+                                splitBill.createdAt,
+                                isSplit: true,
+                                cash: splitBill.cashAmount.toInt(),
+                                online: splitBill.onlineAmount.toInt(),
+                                isPos:
+                                    splitBill.onlinePaymentMode == 'POS Machine'
+                                        ? true
+                                        : false,
+                                isUpi: splitBill.onlinePaymentMode == 'UPI'
+                                    ? true
+                                    : false,
                               );
                             },
                             leading: const SizedBox(
@@ -83,7 +104,7 @@ class OfflineBillsPage extends StatelessWidget {
                             title: Row(
                               children: [
                                 Text(
-                                  'Invoice# ${offlineBill.invoice.toString()}',
+                                  'Invoice# ${splitBill.invoice.toString()}',
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
@@ -94,14 +115,14 @@ class OfflineBillsPage extends StatelessWidget {
                                   width: 10,
                                 ),
                                 Text(
-                                  '₹${offlineBill.netAmount.toString()}',
+                                  '₹${splitBill.netAmount.toString()}',
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Color.fromARGB(255, 122, 21, 189),
                                   ),
                                 ),
                                 Text(
-                                  '  ${DateFormat('dd-MM-yyyy').format(DateTime.parse(offlineBill.createdAt)).toString()}',
+                                  '  ${DateFormat('dd-MM-yyyy').format(DateTime.parse(splitBill.createdAt)).toString()}',
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.black,
@@ -111,10 +132,9 @@ class OfflineBillsPage extends StatelessWidget {
                             ),
                             trailing: DeleteIconButton(
                               onConfirm: () {
-                                Provider.of<OfflineBillProvider>(context,
-                                        listen: false)
-                                    .deleteOfflineBill(
-                                        offlineBill.id!, context);
+                                int? billsIndex = splitBill.id;
+                                splitBillProvider.deleteSplitBill(
+                                    billsIndex!, context);
                               },
                               onCancel: () {
                                 // Handle cancel if needed
@@ -127,7 +147,6 @@ class OfflineBillsPage extends StatelessWidget {
                   );
           },
         ),
-        const Spacer(),
       ],
     );
   }

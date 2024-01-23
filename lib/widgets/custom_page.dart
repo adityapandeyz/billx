@@ -26,9 +26,10 @@ class CustomPage extends StatelessWidget {
           onPressed: () {
             return;
           },
+          iconSize: 150, // Adjust the size as needed
           icon: Padding(
             padding:
-                const EdgeInsets.only(left: 8.0, top: 8, bottom: 8, right: 0),
+                const EdgeInsets.only(left: 8.0, top: 3, bottom: 3, right: 0),
             child: Image.asset('assets/logo/billx.png'),
           ),
         ),
@@ -38,7 +39,11 @@ class CustomPage extends StatelessWidget {
             onPressed: () {
               onClose();
             },
-            icon: const Icon(FontAwesomeIcons.close),
+            icon: const Icon(
+              FontAwesomeIcons.close,
+              color: Colors.red,
+              size: 38,
+            ),
           ),
         ],
       ),

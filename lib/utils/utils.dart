@@ -4,7 +4,7 @@ const backgroundColor = Color.fromARGB(255, 0, 0, 0);
 const primaryColor = Color.fromARGB(94, 68, 137, 255);
 const secondaryColor = Color.fromARGB(33, 158, 158, 158);
 const lightGreyText = Color.fromARGB(255, 39, 39, 39);
-const actionColor = Color.fromARGB(255, 77, 182, 172);
+const actionColor = Color.fromARGB(255, 229, 115, 115);
 
 noDataIcon() {
   return const Center(
@@ -12,6 +12,14 @@ noDataIcon() {
       Icons.cancel,
       color: Color.fromARGB(176, 50, 49, 48),
       size: 56,
+    ),
+  );
+}
+
+showDownAlert(context, text) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(text.toString()),
     ),
   );
 }

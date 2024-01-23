@@ -20,8 +20,8 @@ class CurrentFirmProvider with ChangeNotifier {
       required String phone,
       required String address}) {
     _currentFirmName = firmName;
-    _currentFirmId = firmId;
-    _currentFirmGSTIN = gstin;
+    _currentFirmId = firmId.toLowerCase();
+    _currentFirmGSTIN = gstin.toUpperCase();
     _currentFirmPhone = phone;
     _currentFirmAddress = address;
     notifyListeners();
