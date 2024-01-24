@@ -61,7 +61,7 @@ Future<void> printBarcode({
 
             pw.Divider(),
             pw.Text(
-              '$firmName',
+              firmName,
               style: pw.TextStyle(font: regularFont, fontSize: 10),
             ),
           ],
@@ -71,7 +71,7 @@ Future<void> printBarcode({
   );
 
   final Uint8List bytes = await pdf.save();
-  final PrintingInfo info = await Printing.info();
+  // final PrintingInfo info = await Printing.info();
 
   await Printing.layoutPdf(
     onLayout: (PdfPageFormat format) async => bytes,

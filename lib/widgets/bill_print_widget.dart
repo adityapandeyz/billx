@@ -36,7 +36,7 @@ Future<void> printPdf(
   // Load NotoSans font with different styles
   final boldFont = await PdfGoogleFonts.notoSansDevanagariBold();
   final regularFont = await PdfGoogleFonts.notoSansDevanagariRegular();
-  final italicFont = await PdfGoogleFonts.notoSansDevanagariLight();
+  // final italicFont = await PdfGoogleFonts.notoSansDevanagariLight();
 
   // Set the custom paper size for POS printing (adjust width as needed)
   const PdfPageFormat format =
@@ -374,7 +374,6 @@ Future<void> printPdf(
   );
 
   final Uint8List bytes = await pdf.save();
-  final PrintingInfo info = await Printing.info();
 
   await Printing.layoutPdf(
     onLayout: (PdfPageFormat format) async => bytes,

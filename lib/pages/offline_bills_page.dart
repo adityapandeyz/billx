@@ -71,6 +71,7 @@ class OfflineBillsPage extends StatelessWidget {
                                 offlineBill.totalTax,
                                 offlineBill.createdAt,
                                 isCash: true,
+                                disc: offlineBill.discAmount.toInt(),
                               );
                             },
                             leading: const SizedBox(

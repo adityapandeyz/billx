@@ -92,6 +92,7 @@ class _SplitBillsPageState extends State<SplitBillsPage> {
                                 isUpi: splitBill.onlinePaymentMode == 'UPI'
                                     ? true
                                     : false,
+                                disc: splitBill.discAmount.toInt(),
                               );
                             },
                             leading: const SizedBox(

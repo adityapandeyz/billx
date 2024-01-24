@@ -90,7 +90,7 @@ class BarcodeProvider extends ChangeNotifier {
         double gstAmountInclusive = gstAmountExclusive / (1 + gstRate / 100);
 
         // Calculate inclusive rate
-        double inclusiveRate = barcode.rate + gstAmountInclusive;
+        // double inclusiveRate = barcode.rate + gstAmountInclusive;
 
         // Calculate CGST and SGST based on inclusive rate
         barcode.cgst = gstAmountInclusive / 2;

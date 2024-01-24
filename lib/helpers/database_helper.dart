@@ -6,7 +6,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../models/category.dart';
-import '../models/fabric.dart';
 import '../models/item.dart';
 import '../models/offline_bill.dart';
 import '../models/online_bill.dart';

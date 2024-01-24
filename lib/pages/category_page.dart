@@ -5,11 +5,9 @@ import 'package:provider/provider.dart';
 import '../models/category.dart';
 import '../providers/current_firm_provider.dart';
 import '../providers/category_provider.dart'; // Import CategoryProvider
-import '../providers/items_provider.dart';
 import '../utils/utils.dart';
 import '../widgets/custom_page.dart';
 import '../widgets/custom_textfield.dart';
-import '../widgets/delete_icon_button.dart';
 import '../widgets/green_add_button.dart';
 
 class CategoryPage extends StatefulWidget {
@@ -228,9 +226,9 @@ class _CategoryPageState extends State<CategoryPage> {
 }
 
 class EditCategory extends StatefulWidget {
-  String categoryName;
-  String categoryId;
-  EditCategory({
+  final String categoryName;
+  final String categoryId;
+  const EditCategory({
     Key? key,
     required this.categoryName,
     required this.categoryId,
@@ -245,7 +243,6 @@ class _EditCategoryState extends State<EditCategory> {
 
   TextEditingController categoryIdController = TextEditingController();
 
-  String _selectedCategory = '';
   String firmdId = '';
 
   @override

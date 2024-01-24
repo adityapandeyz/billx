@@ -14,7 +14,7 @@ void showItemListDailog(BarcodeProvider barcodeModel, context) {
     context: context,
     builder: (BuildContext context) {
       return StatefulBuilder(builder: (context, setState) {
-        final TextEditingController _searchController = TextEditingController();
+        final TextEditingController searchController = TextEditingController();
 
         return AlertDialog(
           title: Row(
@@ -36,7 +36,7 @@ void showItemListDailog(BarcodeProvider barcodeModel, context) {
             children: [
               CustomTextfield(
                 label: 'Search Items',
-                controller: _searchController,
+                controller: searchController,
                 onChanged: (value) {
                   setState(() {});
                 },
@@ -72,7 +72,7 @@ void showItemListDailog(BarcodeProvider barcodeModel, context) {
                       ),
                     );
 
-                    final searchText = _searchController.text.toLowerCase();
+                    final searchText = searchController.text.toLowerCase();
                     final itemName =
                         itemProvider.itemList![index].name.toLowerCase();
                     final itemCategory =

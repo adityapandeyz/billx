@@ -1,23 +1,14 @@
 import 'dart:convert';
 
-import 'package:billx/providers/current_firm_provider.dart';
-import 'package:billx/widgets/custom_button.dart';
-import 'package:billx/widgets/custom_textfield.dart';
-import 'package:billx/widgets/return_bill_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
+
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
 import '../models/barcode.dart';
-import '../providers/barcode_provider.dart';
-import '../providers/items_provider.dart';
-import 'add_item_bill.dart';
 
 showBillDetails(
   context,
-  _billsData,
+  billsData,
   String invoiceNum,
   firmId,
   netAmount,
@@ -30,13 +21,13 @@ showBillDetails(
   bool isUpi = false,
   bool isPos = false,
   bool isCash = false,
+  int disc = 0,
 }) {
   showDialog(
     context: context,
     builder: (context) {
-      List billData = _billsData!
-          .where((element) => element.invoice == invoiceNum)
-          .toList();
+      List billData =
+          billsData!.where((element) => element.invoice == invoiceNum).toList();
 
       if (billData.isEmpty) {
         // Handle the case where no bill with the given ID is found
@@ -99,7 +90,7 @@ showBillDetails(
                   Text('Invoice #$invoiceNum'),
                   const Spacer(),
                   Text(
-                    'DateTime: ${DateFormat('hh:m EEE dd-MM-yyyy').format(DateTime.parse(dateTime)).toString()}',
+                    'DateTime: ${DateFormat.yMMMEd().add_jm().format(DateTime.parse(dateTime)).toString()}',
                   ),
                 ],
               ),
@@ -189,7 +180,7 @@ showBillDetails(
                       height: 5,
                     ),
                     Text(
-                      'Total Tax: ₹$totalTax',
+                      'Total Tax: ₹${totalTax.toStringAsFixed(2)}',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
@@ -219,6 +210,9 @@ showBillDetails(
                             ),
                           )
                         : const SizedBox(),
+                    const SizedBox(
+                      height: 5,
+                    ),
                     isUpi
                         ? const Text(
                             'Mode of Payment: UPI',
@@ -228,6 +222,16 @@ showBillDetails(
                             ),
                           )
                         : const SizedBox(),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Text(
+                      'Disc: ₹$disc',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
                   ],
                 ),
               ),

@@ -7,7 +7,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-import '../helpers/database_helper.dart';
 import '../models/barcode.dart';
 import '../models/item.dart';
 import '../models/offline_bill.dart';
@@ -121,7 +120,7 @@ class _CreateNewBillPageState extends State<CreateNewBillPage> {
                     ),
                   ),
                 ),
-                Spacer(),
+                const Spacer(),
                 Row(
                   children: [
                     Text(
@@ -133,14 +132,14 @@ class _CreateNewBillPageState extends State<CreateNewBillPage> {
                       ),
                     ),
                     IconButton(
-                      icon: Icon(FontAwesomeIcons.edit),
+                      icon: const Icon(FontAwesomeIcons.edit),
                       onPressed: () {
                         showDialog<void>(
                           context: context,
                           barrierDismissible: false, // user must tap button!
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title: const Text('AlertDialog Title'),
+                              title: const Text('Discount Amt.'),
                               content: SingleChildScrollView(
                                 child: ListBody(
                                   children: <Widget>[
@@ -534,7 +533,7 @@ class _CreateNewBillPageState extends State<CreateNewBillPage> {
                 ),
                 const Spacer(),
                 Text(
-                  'Return Item Value: ₹',
+                  'Return Items Value: ₹',
                   style: GoogleFonts.poppins(
                     textStyle: const TextStyle(
                       fontWeight: FontWeight.bold,
@@ -898,7 +897,7 @@ class _CreateNewBillPageState extends State<CreateNewBillPage> {
 
                 // Check if total amount is within acceptable range
                 if (totalAmount ==
-                    Provider.of<BarcodeProvider>(context)
+                    Provider.of<BarcodeProvider>(context, listen: false)
                         .calculateTotalSumOfRates()
                         .toDouble()) {
                   // If it's equal, submit the values
@@ -913,7 +912,7 @@ class _CreateNewBillPageState extends State<CreateNewBillPage> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                          'Total amount must be equal to ${Provider.of<BarcodeProvider>(context).calculateTotalSumOfRates().toDouble()}'),
+                          'Total amount must be equal to ${Provider.of<BarcodeProvider>(context, listen: false).calculateTotalSumOfRates().toDouble()}'),
                     ),
                   );
                 }

@@ -75,6 +75,7 @@ class OnlineBillsPage extends StatelessWidget {
                                 isUpi: onlineBill.modeOfPayment == 'UPI'
                                     ? true
                                     : false,
+                                disc: onlineBill.discAmount.toInt(),
                               );
                             },
                             leading: const SizedBox(
