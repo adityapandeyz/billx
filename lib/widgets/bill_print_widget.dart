@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -64,6 +65,15 @@ Future<void> printPdf(
                 textAlign: pw.TextAlign.center,
               ),
             ),
+            // pw.Container(
+            //   width: 100,
+            //   child: pw.Image(
+            //     pw.MemoryImage(
+            //       File('assets/logo/ptx_logo.png').readAsBytesSync(),
+            //     ),
+            //   ),
+            // ),
+
             pw.SizedBox(height: 8),
 
             // Address
@@ -282,7 +292,7 @@ Future<void> printPdf(
                 ),
                 pw.SizedBox(width: 5),
                 pw.Text(
-                  ' $netAmount',
+                  ' ${netAmount.toString()}',
                   style: pw.TextStyle(font: boldFont, fontSize: 12),
                 ),
               ],

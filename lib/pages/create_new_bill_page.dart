@@ -67,6 +67,233 @@ class _CreateNewBillPageState extends State<CreateNewBillPage> {
     return shortenedText;
   }
 
+  void showItemListDailog(BarcodeProvider barcodeModel, context) {
+    ItemProvider itemProvider =
+        Provider.of<ItemProvider>(context, listen: false);
+    itemProvider.loadItems(context);
+
+    itemProvider.itemList!.sort((a, b) {
+      final nameComparison =
+          a.name.toLowerCase().compareTo(b.name.toLowerCase());
+
+      return nameComparison != 0
+          ? nameComparison
+          : a.itemId.compareTo(b.itemId);
+    });
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          final TextEditingController searchController =
+              TextEditingController();
+
+          return StatefulBuilder(builder: (context, setState) {
+            return AlertDialog(
+              title: Row(
+                children: [
+                  const Text('Select Items'),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    icon: const Icon(
+                      FontAwesomeIcons.close,
+                    ),
+                  )
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CustomTextfield(
+                    label: 'Search Items',
+                    controller: searchController,
+                    onChanged: (value) {
+                      setState(() {});
+                    },
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  SizedBox(
+                    width: 600,
+                    height: MediaQuery.of(context).size.height * 0.5,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: itemProvider.itemList!.length,
+                      itemBuilder: (context, int index) {
+                        itemProvider.itemList!.sort((a, b) => a.name
+                            .toLowerCase()
+                            .compareTo(b.name.toLowerCase()));
+
+                        final itemId = itemProvider.itemList![index].itemId;
+                        final item = itemProvider.itemList![index];
+                        final existingItem = barcodeModel.barcodes.firstWhere(
+                          (i) => i.barcode == item.barcode,
+                          orElse: () => Barcode(
+                            isBeingReturned: false,
+                            itemId: '',
+                            quantity: 0,
+                            barcode: '',
+                            rate: 0,
+                            cgst: 0,
+                            sgst: 0,
+                            category: '',
+                            size: '',
+                            name: '',
+                          ),
+                        );
+
+                        final searchText = searchController.text.toLowerCase();
+                        final itemName =
+                            itemProvider.itemList![index].name.toLowerCase();
+                        final itemCategory = itemProvider
+                            .itemList![index].category
+                            .toLowerCase();
+
+                        if (!itemName.contains(searchText.toString()) &&
+                            !itemProvider.itemList![index].barcode
+                                .toLowerCase()
+                                .contains(searchText) &&
+                            !itemCategory.contains(searchText.toString())) {
+                          return Container(); // Return an empty container if item doesn't match the search
+                        }
+
+                        // double itemPrice = parse(item.price.toString());
+                        return ListTile(
+                          title: Text("${item.name}  (${item.itemId})"),
+                          subtitle: Text(
+                            'Category: ${item.category}, Size: ${item.size}, Barcode: ${item.barcode} ',
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text(
+                                    'MRP: ',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  Text(
+                                    '₹${item.price}',
+                                    style: const TextStyle(
+                                      color: Colors.red,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              IconButton(
+                                icon: const Icon(FontAwesomeIcons.plus),
+                                onPressed: () {
+                                  // If the checkbox is selected, check if the item is already in the list
+
+                                  final existingItemIndex =
+                                      barcodeModel.barcodes.indexWhere(
+                                    (i) => i.itemId == itemId,
+                                  );
+                                  if (existingItemIndex == -1) {
+                                    // If the item is not in the list, add a new item
+                                    barcodeModel.addItem(
+                                      Barcode(
+                                        isBeingReturned: false,
+                                        itemId: itemId,
+                                        barcode: item.barcode,
+                                        quantity: 1,
+                                        rate: item.price,
+                                        cgst: 0,
+                                        sgst: 0,
+                                        category: item.category,
+                                        size: item.size,
+                                        name: item.name,
+                                      ),
+                                    );
+                                  } else {
+                                    // If the item is already in the list, increment its quantity
+                                    barcodeModel
+                                        .barcodes[existingItemIndex].quantity++;
+                                  }
+                                  setState(() {});
+                                  // totalItems += 1;
+                                  // totalBasePrice += item.price.toInt();
+                                  barcodeModel.updateQuantity(
+                                      existingItem, existingItem.quantity);
+                                },
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              Text(
+                                '${existingItem.quantity}',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              IconButton(
+                                icon: const Icon(FontAwesomeIcons.minus),
+                                onPressed: () {
+                                  // If the checkbox is unselected, decrement the quantity
+                                  final existingItem =
+                                      barcodeModel.barcodes.firstWhere(
+                                    (i) => i.barcode == item.barcode,
+                                    orElse: () => Barcode(
+                                      isBeingReturned: false,
+                                      itemId: '',
+                                      barcode: '',
+                                      quantity: 0,
+                                      rate: 0,
+                                      cgst: 0,
+                                      sgst: 0,
+                                      category: '',
+                                      size: '',
+                                      name: '',
+                                    ),
+                                  );
+
+                                  if (existingItem.quantity > 0) {
+                                    existingItem.quantity--;
+
+                                    // If the quantity becomes 0, remove the item from the list
+                                    if (existingItem.quantity == 0) {
+                                      barcodeModel.removeItem(existingItem);
+                                    }
+
+                                    // totalItems -= 1;
+
+                                    // // Only subtract the item price if the quantity is greater than 0
+                                    // if (existingItem.quantity > 0) {
+                                    //   totalBasePrice -= item.price.toInt();
+                                    // } else {
+                                    //   // If quantity becomes 0, subtract the item price from totalBasePrice
+                                    //   totalBasePrice -= item.price.toInt();
+                                    // }
+
+                                    barcodeModel.updateQuantity(
+                                        existingItem, existingItem.quantity);
+                                    setState(() {});
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                ],
+              ),
+            );
+          });
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     final firmData = Provider.of<CurrentFirmProvider>(context, listen: false);
@@ -498,7 +725,7 @@ class _CreateNewBillPageState extends State<CreateNewBillPage> {
                       ),
                     ),
                     Text(
-                      barcodeModel.calculateTotalSumOfRates().toString(),
+                      barcodeModel.calculateNetAmount().toString(),
                       style: GoogleFonts.poppins(
                         textStyle: const TextStyle(
                           fontWeight: FontWeight.bold,
@@ -542,7 +769,7 @@ class _CreateNewBillPageState extends State<CreateNewBillPage> {
                   ),
                 ),
                 Text(
-                  barcodeModel.calculateTotalSumOfRatesForReturn().toString(),
+                  (barcodeModel.calculateTotalSumOfRatesForReturn().toString()),
                   style: GoogleFonts.poppins(
                     textStyle: const TextStyle(
                       fontWeight: FontWeight.bold,
@@ -656,6 +883,21 @@ class _CreateNewBillPageState extends State<CreateNewBillPage> {
       final splitBillProvider =
           Provider.of<SplitBillProvider>(context, listen: false);
 
+      final items = Provider.of<ItemProvider>(context, listen: false);
+
+      List<Map<String, dynamic>> stockSubtractionDataList = [];
+
+      // Iterate through barcodes and create data for stock subtraction
+      barcodeModel.barcodes.forEach((barcode) {
+        if (!barcode.isBeingReturned) {
+          items.subtractStock(barcode.barcode, barcode.quantity, context);
+        } else {
+          items.addStock(barcode.barcode, barcode.quantity, context);
+        }
+      });
+
+      // Subtract stock for each barcode
+
       List<Barcode> barcodeDataList = barcodeModel.barcodes.map((barcode) {
             return Barcode(
               isBeingReturned: barcode.isBeingReturned,
@@ -703,7 +945,7 @@ class _CreateNewBillPageState extends State<CreateNewBillPage> {
           createdAt: DateTime.now().toIso8601String(),
           invoice: invoiceOn,
           items: barcodeDataString,
-          netAmount: barcodeModel.calculateTotalSumOfRates().toDouble(),
+          netAmount: barcodeModel.calculateNetAmount(),
           totalTax: barcodeModel.calculateGstForAll().totalTax,
           modeOfPayment: modeOfPayment.toString(),
           totalQuantity: barcodeModel.calculateTotalQuantity().toInt(),
@@ -716,7 +958,7 @@ class _CreateNewBillPageState extends State<CreateNewBillPage> {
           invoice: invoiceOn,
           dateTime: DateTime.now(),
           totalQuantity: barcodeModel.calculateTotalQuantity().toInt(),
-          netAmount: barcodeModel.calculateTotalSumOfRates().toDouble(),
+          netAmount: (barcodeModel.calculateNetAmount()),
           itemsList: dataList,
           gstDetails: barcodeModel.calculateGstForAll(),
           selectedModeOfPayment: modeOfPayment,
@@ -733,7 +975,7 @@ class _CreateNewBillPageState extends State<CreateNewBillPage> {
           createdAt: DateTime.now().toIso8601String(),
           invoice: invoiceOff,
           items: barcodeDataString,
-          netAmount: barcodeModel.calculateTotalSumOfRates().toDouble(),
+          netAmount: barcodeModel.calculateNetAmount(),
           totalTax: barcodeModel.calculateGstForAll().totalTax,
           modeOfPayment: 'Cash',
           totalQuantity: barcodeModel.calculateTotalQuantity().toInt(),
@@ -746,7 +988,7 @@ class _CreateNewBillPageState extends State<CreateNewBillPage> {
           invoice: invoiceOff,
           dateTime: DateTime.now(),
           totalQuantity: barcodeModel.calculateTotalQuantity().toInt(),
-          netAmount: barcodeModel.calculateTotalSumOfRates().toDouble(),
+          netAmount: barcodeModel.calculateNetAmount(),
           itemsList: dataList,
           gstDetails: barcodeModel.calculateGstForAll(),
           selectedModeOfPayment: 'Cash',
@@ -773,7 +1015,7 @@ class _CreateNewBillPageState extends State<CreateNewBillPage> {
             items: barcodeDataString,
             cashAmount: double.parse(cashAmount.toString()),
             onlineAmount: double.parse(onlineAmount.toString()),
-            netAmount: barcodeModel.calculateTotalSumOfRates().toDouble(),
+            netAmount: barcodeModel.calculateNetAmount(),
             totalTax: barcodeModel.calculateGstForAll().totalTax,
             onlinePaymentMode: _onlinePaymentMode!,
             totalQuantity: barcodeModel.calculateTotalQuantity().toInt(),
@@ -789,7 +1031,7 @@ class _CreateNewBillPageState extends State<CreateNewBillPage> {
             totalQuantity: barcodeModel.calculateTotalQuantity().toInt(),
             cashAmount: cashAmount,
             onlineAmount: onlineAmount,
-            netAmount: barcodeModel.calculateTotalSumOfRates().toDouble(),
+            netAmount: barcodeModel.calculateNetAmount(),
             itemsList: dataList,
             gstDetails: barcodeModel.calculateGstForAll(),
             selectedModeOfPayment: _onlinePaymentMode,
@@ -897,9 +1139,8 @@ class _CreateNewBillPageState extends State<CreateNewBillPage> {
 
                 // Check if total amount is within acceptable range
                 if (totalAmount ==
-                    Provider.of<BarcodeProvider>(context, listen: false)
-                        .calculateTotalSumOfRates()
-                        .toDouble()) {
+                    (Provider.of<BarcodeProvider>(context, listen: false)
+                        .calculateNetAmount())) {
                   // If it's equal, submit the values
                   Navigator.of(context).pop({
                     'cashAmount': cashAmount,

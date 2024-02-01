@@ -100,7 +100,8 @@ class DatabaseHelper {
     barcode TEXT NOT NULL,
     price INTEGER NOT NULL,
     category TEXT NOT NULL,
-    firmId TEXT NOT NULL
+    firmId TEXT NOT NULL,
+    stock INTEGER NOT NULL
   );
 ''');
 

@@ -1,11 +1,11 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:billx/providers/current_firm_provider.dart';
-import 'package:billx/widgets/barcode_generator.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import 'package:billx/models/category.dart';
+import 'package:billx/providers/current_firm_provider.dart';
+import 'package:billx/widgets/barcode_generator.dart';
 
 import '../models/item.dart';
 import '../providers/category_provider.dart';
@@ -119,6 +119,13 @@ class ItemPage extends StatelessWidget {
                                 Text(
                                   'CategoryId: ${filteredItems[index].category.toString()}',
                                 ),
+                                Text(
+                                  'Stock: ${filteredItems[index].stock.toString()}',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ],
                             ),
                             trailing: Row(
@@ -166,6 +173,9 @@ class ItemPage extends StatelessWidget {
                                             itemSize: filteredItems[index].size,
                                             categoryId:
                                                 filteredItems[index].category,
+                                            stock: filteredItems[index]
+                                                .stock
+                                                .toInt(),
                                           ),
                                         );
                                       },
@@ -194,6 +204,7 @@ class EditItem extends StatefulWidget {
   int itemPrice;
   String itemBarcode;
   String categoryId;
+  int stock;
   EditItem({
     Key? key,
     required this.itemId,
@@ -202,6 +213,7 @@ class EditItem extends StatefulWidget {
     required this.itemPrice,
     required this.itemBarcode,
     required this.categoryId,
+    required this.stock,
   }) : super(key: key);
 
   @override
@@ -215,6 +227,7 @@ class _EditItemState extends State<EditItem> {
   TextEditingController itemPriceController = TextEditingController();
   TextEditingController itemBarcodeController = TextEditingController();
   TextEditingController itemCategoryController = TextEditingController();
+  TextEditingController itemStockController = TextEditingController();
 
   String _selectedCategory = '';
   String firmdId = '';
@@ -227,6 +240,7 @@ class _EditItemState extends State<EditItem> {
     itemPriceController.dispose();
     itemBarcodeController.dispose();
     itemCategoryController.dispose();
+    itemStockController.dispose();
     super.dispose();
   }
 
@@ -285,6 +299,13 @@ class _EditItemState extends State<EditItem> {
             const SizedBox(
               height: 10,
             ),
+            CustomTextfield(
+              label: 'Stock: ${widget.stock}',
+              controller: itemStockController,
+            ),
+            const SizedBox(
+              height: 10,
+            ),
           ],
         ),
         actions: [
@@ -324,6 +345,10 @@ class _EditItemState extends State<EditItem> {
                   existingItem.category = itemCategoryController.text.isEmpty
                       ? existingItem.category
                       : itemCategoryController.text;
+
+                  existingItem.stock = itemStockController.text.isEmpty
+                      ? existingItem.stock
+                      : int.parse(itemStockController.text);
 
                   itemProvider.updateItem(existingItem, context);
                 } else {

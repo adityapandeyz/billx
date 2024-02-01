@@ -123,4 +123,33 @@ class ItemProvider extends ChangeNotifier {
       connectionFailed(e);
     }
   }
+
+  Future<void> subtractStock(
+      String barcode, int quantityToSubtract, context) async {
+    try {
+      Item item = items!.firstWhere((item) => item.barcode == barcode);
+
+      item.stock -= quantityToSubtract;
+
+      await databaseHelper.updateItem(item);
+
+      await loadItems(context);
+    } catch (e) {
+      connectionFailed(e);
+    }
+  }
+
+  Future<void> addStock(String barcode, int quantityToAdd, context) async {
+    try {
+      Item item = items!.firstWhere((item) => item.barcode == barcode);
+
+      item.stock += quantityToAdd;
+
+      await databaseHelper.updateItem(item);
+
+      await loadItems(context);
+    } catch (e) {
+      connectionFailed(e);
+    }
+  }
 }

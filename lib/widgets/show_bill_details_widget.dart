@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 
 import '../models/barcode.dart';
 
+import 'package:xml/xml.dart' as xml;
+
 showBillDetails(
   context,
   billsData,
@@ -250,7 +252,6 @@ showBillDetails(
     },
   );
 }
-
 
 // class ReturnItemWindow extends StatefulWidget {
 //   final String invoice;

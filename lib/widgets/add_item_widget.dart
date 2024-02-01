@@ -41,6 +41,8 @@ class _AddItemWidgetState extends State<AddItemWidget> {
   TextEditingController itemSizeController = TextEditingController();
   TextEditingController itemPriceController = TextEditingController();
   TextEditingController itemBarcodeController = TextEditingController();
+  TextEditingController itemStockController = TextEditingController();
+
   String _selectedCategory = '';
 
   @override
@@ -126,6 +128,13 @@ class _AddItemWidgetState extends State<AddItemWidget> {
         CustomTextfield(
           label: 'Price(₹)',
           controller: itemPriceController,
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        CustomTextfield(
+          label: 'Price(₹)',
+          controller: itemStockController,
         ),
         const SizedBox(
           height: 10,
@@ -260,6 +269,9 @@ class _AddItemWidgetState extends State<AddItemWidget> {
             .replaceAll(RegExp(r'\s+'), '')
             .toUpperCase(),
         price: int.parse(itemPriceController.text),
+        stock: int.parse(
+          itemStockController.text,
+        ),
       );
 
       // if (_barcode != null) {

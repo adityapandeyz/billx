@@ -8,6 +8,7 @@ class Item {
     required this.price,
     required this.category,
     required this.firmId,
+    required this.stock,
   });
 
   int? id;
@@ -24,6 +25,8 @@ class Item {
 
   String category;
 
+  int stock;
+
   String firmId;
   factory Item.fromJson(Map<String, dynamic> json) {
     return Item(
@@ -35,6 +38,7 @@ class Item {
       price: json['price'],
       category: json['category'],
       firmId: json['firmId'],
+      stock: json['stock'],
     );
   }
 
@@ -48,6 +52,7 @@ class Item {
       'price': price,
       'category': category,
       'firmId': firmId,
+      'stock': stock,
     };
   }
 }

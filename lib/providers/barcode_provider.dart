@@ -33,7 +33,7 @@ class BarcodeProvider extends ChangeNotifier {
 
     for (var barcode in barcodes) {
       if (!barcode.isBeingReturned) {
-        totalSum += barcode.rate * barcode.quantity;
+        (totalSum += barcode.rate * barcode.quantity);
       }
     }
 
@@ -74,6 +74,16 @@ class BarcodeProvider extends ChangeNotifier {
     }
 
     return totalReturnQuantity;
+  }
+
+  double calculateNetAmount() {
+    double netAmmount = 0;
+
+    netAmmount =
+        (calculateTotalSumOfRates() - calculateTotalSumOfRatesForReturn())
+            .toDouble();
+
+    return netAmmount;
   }
 
   GstTotals calculateGstForAll() {
