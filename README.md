@@ -12,6 +12,8 @@ Client - Panwar Texcone
 ![image](https://github.com/adityapandeyz/billx/assets/40023090/06f7e55c-63c1-4485-bb7f-65115ad8a6bb)
 ![image](https://github.com/adityapandeyz/billx/assets/40023090/edce9eec-6a1f-4a19-a5e1-c0dd371dc547)
 ![image](https://github.com/adityapandeyz/billx/assets/40023090/f3553d4a-1688-4504-a423-18aac68f97b8)
+![image](https://github.com/adityapandeyz/billx/assets/40023090/7bae8e36-ab7d-491d-a5bf-473ff478b944)
+
 
 
 
