@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class GreenAddButton extends StatelessWidget {
+class GreenButton extends StatelessWidget {
   final VoidCallback function;
+  final IconData icon;
 
-  const GreenAddButton({
+  const GreenButton({
     super.key,
     required this.function,
+    this.icon = FontAwesomeIcons.plus,
   });
 
   @override
@@ -15,10 +17,10 @@ class GreenAddButton extends StatelessWidget {
       color: Colors.green,
       child: IconButton(
         onPressed: function,
-        icon: const Padding(
-          padding: EdgeInsets.all(8.0),
+        icon: Padding(
+          padding: const EdgeInsets.all(8.0),
           child: Icon(
-            FontAwesomeIcons.plus,
+            icon,
             color: Colors.white,
           ),
         ),

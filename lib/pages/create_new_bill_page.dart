@@ -18,7 +18,6 @@ import '../providers/offline_bill_provider.dart';
 import '../providers/online_bill_provider.dart';
 import '../providers/split_bill_provider.dart';
 import '../utils/utils.dart';
-import '../widgets/add_item_bill.dart';
 import '../widgets/add_item_widget.dart';
 import '../widgets/bill_print_widget.dart';
 import '../widgets/custom_button.dart';
@@ -716,7 +715,7 @@ class _CreateNewBillPageState extends State<CreateNewBillPage> {
                 Row(
                   children: [
                     Text(
-                      'Net Amount: ₹',
+                      'Net Amount:(₹) ',
                       style: GoogleFonts.poppins(
                         textStyle: const TextStyle(
                           fontWeight: FontWeight.bold,
@@ -725,11 +724,53 @@ class _CreateNewBillPageState extends State<CreateNewBillPage> {
                       ),
                     ),
                     Text(
-                      barcodeModel.calculateNetAmount().toString(),
+                      '${barcodeModel.calculateTotalSumOfRates()}',
                       style: GoogleFonts.poppins(
                         textStyle: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 21,
+                          fontSize: 18,
+                          color: Colors.green,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      ' - ',
+                      style: GoogleFonts.poppins(
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.orange,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      barcodeModel
+                          .calculateTotalSumOfRatesForReturn()
+                          .toString(),
+                      style: GoogleFonts.poppins(
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      ' = ',
+                      style: GoogleFonts.poppins(
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.orange,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      '${barcodeModel.calculateNetAmount().toString()}',
+                      style: GoogleFonts.poppins(
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 24,
                           color: Colors.green,
                         ),
                       ),
@@ -760,7 +801,7 @@ class _CreateNewBillPageState extends State<CreateNewBillPage> {
                 ),
                 const Spacer(),
                 Text(
-                  'Return Items Value: ₹',
+                  'Return Amount: ₹',
                   style: GoogleFonts.poppins(
                     textStyle: const TextStyle(
                       fontWeight: FontWeight.bold,
@@ -960,7 +1001,9 @@ class _CreateNewBillPageState extends State<CreateNewBillPage> {
           totalQuantity: barcodeModel.calculateTotalQuantity().toInt(),
           netAmount: (barcodeModel.calculateNetAmount()),
           itemsList: dataList,
-          gstDetails: barcodeModel.calculateGstForAll(),
+          totalCgst: barcodeModel.calculateGstForAll().totalCgst,
+          totalSgst: barcodeModel.calculateGstForAll().totalSgst,
+          totalTax: barcodeModel.calculateGstForAll().totalTax,
           selectedModeOfPayment: modeOfPayment,
           discAmount: barcodeModel.discAmount,
         );
@@ -990,7 +1033,9 @@ class _CreateNewBillPageState extends State<CreateNewBillPage> {
           totalQuantity: barcodeModel.calculateTotalQuantity().toInt(),
           netAmount: barcodeModel.calculateNetAmount(),
           itemsList: dataList,
-          gstDetails: barcodeModel.calculateGstForAll(),
+          totalCgst: barcodeModel.calculateGstForAll().totalCgst,
+          totalSgst: barcodeModel.calculateGstForAll().totalSgst,
+          totalTax: barcodeModel.calculateGstForAll().totalTax,
           selectedModeOfPayment: 'Cash',
           discAmount: barcodeModel.discAmount,
         );
@@ -1033,7 +1078,9 @@ class _CreateNewBillPageState extends State<CreateNewBillPage> {
             onlineAmount: onlineAmount,
             netAmount: barcodeModel.calculateNetAmount(),
             itemsList: dataList,
-            gstDetails: barcodeModel.calculateGstForAll(),
+            totalCgst: barcodeModel.calculateGstForAll().totalCgst,
+            totalSgst: barcodeModel.calculateGstForAll().totalSgst,
+            totalTax: barcodeModel.calculateGstForAll().totalTax,
             selectedModeOfPayment: _onlinePaymentMode,
             discAmount: barcodeModel.discAmount,
           );

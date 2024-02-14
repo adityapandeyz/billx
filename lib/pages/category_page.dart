@@ -58,7 +58,7 @@ class _CategoryPageState extends State<CategoryPage> {
             const SizedBox(
               width: 10,
             ),
-            GreenAddButton(
+            GreenButton(
               function: () {
                 addCategory(firmId,
                     Provider.of<CategoryProvider>(context, listen: false));

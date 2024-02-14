@@ -23,17 +23,13 @@ import 'providers/barcode_provider.dart';
 import 'providers/current_firm_provider.dart';
 import 'providers/items_provider.dart';
 
-/// create a reference for the sqlite database that
-/// we can refer to in other parts of the app
 late SharedPreferences sharedPreferences;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  //initialize the database
   await DatabaseHelper.instance.database;
 
-//innitialize shared preference
   sharedPreferences = await SharedPreferences.getInstance();
 
   runApp(const MyApp());

@@ -48,7 +48,7 @@ class ItemPage extends StatelessWidget {
             const SizedBox(
               width: 10,
             ),
-            GreenAddButton(
+            GreenButton(
               function: () {
                 showDialog(
                   context: context,

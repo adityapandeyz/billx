@@ -133,7 +133,7 @@ class _AddItemWidgetState extends State<AddItemWidget> {
           height: 10,
         ),
         CustomTextfield(
-          label: 'Price(₹)',
+          label: 'Total Stock',
           controller: itemStockController,
         ),
         const SizedBox(
@@ -157,9 +157,16 @@ class _AddItemWidgetState extends State<AddItemWidget> {
                   ? []
                   : categoryProvider.itemCategories!.map(
                       (item) {
+                        if (item.categoryId == null) {
+                          // Print an error message or handle the case where categoryId is null.
+                          print(
+                              'Error: categoryId is null for item ${item.name}');
+                        }
+
                         return DropdownMenuItem<String>(
-                          value: item.categoryId,
-                          child: Text('${item.name} (${item.categoryId})'),
+                          value: item.categoryId ?? '',
+                          child:
+                              Text('${item.name} (${item.categoryId ?? ''})'),
                         );
                       },
                     ).toList(),
@@ -177,57 +184,12 @@ class _AddItemWidgetState extends State<AddItemWidget> {
     );
   }
 
-  // Widget _buildBarcodeSection(BuildContext context) {
-  //   return VisibilityDetector(
-  //     onVisibilityChanged: (VisibilityInfo info) {
-  //       visible = info.visibleFraction > 0;
-  //     },
-  //     key: const Key('visible-detector-key'),
-  //     child: BarcodeKeyboardListener(
-  //       bufferDuration: const Duration(milliseconds: 200),
-  //       onBarcodeScanned: (barcode) {
-  //         if (!visible) return;
-  //         setState(() {
-  //           _barcode = barcode.replaceAll(RegExp(r'\s+'), '').toUpperCase();
-  //         });
-  //       },
-  //       child: _barcode != null || _barcode.toString().isNotEmpty
-  //           ? Column(
-  //               mainAxisAlignment: MainAxisAlignment.center,
-  //               crossAxisAlignment: CrossAxisAlignment.center,
-  //               children: <Widget>[
-  //                 Text(
-  //                   _barcode == null ? 'SCAN BARCODE' : 'BARCODE: ${_barcode!}',
-  //                   style: Theme.of(context).textTheme.headlineSmall,
-  //                 ),
-  //                 bar.BarcodeWidget(
-  //                   color: Colors.black,
-  //                   barcode: bar.Barcode.code128(),
-  //                   height: 100,
-  //                   width: 200,
-  //                   data: _barcode.toString(),
-  //                   errorBuilder: (context, error) =>
-  //                       Center(child: Text(error)),
-  //                 ),
-  //                 const SizedBox(
-  //                   height: 20,
-  //                 ),
-  //               ],
-  //             )
-  //           : Text(
-  //               'Scan Barcode',
-  //               style: Theme.of(context).textTheme.headlineSmall,
-  //             ),
-  //     ),
-  //   );
-  // }
-
-  Future<void> _uploadItemData(ItemProvider itemProvider,
-      CategoryProvider categoryProvider, String firmId) async {
+  _uploadItemData(ItemProvider itemProvider, CategoryProvider categoryProvider,
+      String firmId) async {
     if (_inputsAreEmpty()) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Base price must be a valid double or int value.'),
+          content: Text('Some issue with the inputs!!!'),
         ),
       );
       return;
@@ -252,13 +214,6 @@ class _AddItemWidgetState extends State<AddItemWidget> {
         await itemProvider.getNextItemId(_selectedCategory ?? '', context);
 
     try {
-      // if (itemBarcodeController.text.isEmpty ||
-      //     itemNameController.text.isEmpty ||
-      //     itemSizeController.text.isEmpty ||
-      //     itemPriceController.text.isEmpty) {
-      //   return;
-      // }
-
       var item = Item(
         name: itemNameController.text,
         itemId: itemId,
@@ -273,12 +228,6 @@ class _AddItemWidgetState extends State<AddItemWidget> {
           itemStockController.text,
         ),
       );
-
-      // if (_barcode != null) {
-      //   item.barcode = _barcode!.toUpperCase();
-      // } else {
-      //   return;
-      // }
 
       if (itemProvider.items!.any((existingItem) =>
           existingItem.barcode == itemBarcodeController.text)) {
