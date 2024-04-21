@@ -350,7 +350,7 @@ class _CreateNewBillPageState extends State<CreateNewBillPage> {
                 Row(
                   children: [
                     Text(
-                      'Disc: ${barcodeModel.discAmount}',
+                      'Disc: ₹${barcodeModel.discAmount}',
                       style: GoogleFonts.poppins(
                         textStyle: const TextStyle(
                           fontSize: 16,

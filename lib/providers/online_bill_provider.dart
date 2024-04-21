@@ -52,7 +52,6 @@ class OnlineBillProvider extends ChangeNotifier {
 
   Future<void> createOnlineBill(context, OnlineBill onlineBill) async {
     try {
-      // Use DatabaseHelper to insert online bill into the database
       await databaseHelper.insertOnlineBill(onlineBill);
       await loadOnBills(context);
     } catch (e) {
@@ -64,24 +63,22 @@ class OnlineBillProvider extends ChangeNotifier {
     context,
     searchText,
   ) {
-    {
-      if (onlineBills != null) {
-        if (searchText.isEmpty) {
-          filteredOnlineBillList = List.from(onlineBillList!);
-        } else {
-          filteredOnlineBillList = onlineBillList!
-              .where((onlineBill) =>
-                  onlineBill.invoice
-                      .toUpperCase()
-                      .contains(searchText.toString().toUpperCase()) ||
-                  onlineBill.netAmount
-                      .toString()
-                      .toUpperCase()
-                      .contains(searchText.toString().toUpperCase()))
-              .toList();
-        }
-        notifyListeners();
+    if (onlineBills != null) {
+      if (searchText.isEmpty) {
+        filteredOnlineBillList = List.from(onlineBillList!);
+      } else {
+        filteredOnlineBillList = onlineBillList!
+            .where((onlineBill) =>
+                onlineBill.invoice
+                    .toUpperCase()
+                    .contains(searchText.toString().toUpperCase()) ||
+                onlineBill.netAmount
+                    .toString()
+                    .toUpperCase()
+                    .contains(searchText.toString().toUpperCase()))
+            .toList();
       }
+      notifyListeners();
     }
   }
 }

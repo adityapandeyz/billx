@@ -58,7 +58,10 @@ class OfflineBillProvider extends ChangeNotifier {
     }
   }
 
-  void filterBills(context, searchText) {
+  void filterBills(
+    context,
+    searchText,
+  ) {
     if (offlineBills != null) {
       if (searchText.isEmpty) {
         filteredOfflineBillList = List.from(offlineBillList!);

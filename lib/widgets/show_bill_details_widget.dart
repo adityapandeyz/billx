@@ -249,92 +249,92 @@ showBillDetails(
             ],
           ),
           actions: [
-            ElevatedButton(
-              child: const Text("Print"),
-              onPressed: () {
-                final firmData =
-                    Provider.of<CurrentFirmProvider>(context, listen: false);
-                for (var currentBill in billData) {
-                  List<Barcode> itemsList =
-                      (json.decode(currentBill.items) as List).map((item) {
-                    return Barcode(
-                      itemId: item['itemId'],
-                      barcode: item['barcode'],
-                      name: item['name'],
-                      category: item['category'],
-                      size: item['size'],
-                      quantity: item['quantity'],
-                      rate: item['rate'],
-                      cgst: item['cgst'],
-                      sgst: item['sgst'],
-                      isBeingReturned: item['isBeingReturned'] ?? false,
-                    );
-                  }).toList();
+            // ElevatedButton(
+            //   child: const Text("Print"),
+            //   onPressed: () {
+            //     final firmData =
+            //         Provider.of<CurrentFirmProvider>(context, listen: false);
+            //     for (var currentBill in billData) {
+            //       List<Barcode> itemsList =
+            //           (json.decode(currentBill.items) as List).map((item) {
+            //         return Barcode(
+            //           itemId: item['itemId'],
+            //           barcode: item['barcode'],
+            //           name: item['name'],
+            //           category: item['category'],
+            //           size: item['size'],
+            //           quantity: item['quantity'],
+            //           rate: item['rate'],
+            //           cgst: item['cgst'],
+            //           sgst: item['sgst'],
+            //           isBeingReturned: item['isBeingReturned'] ?? false,
+            //         );
+            //       }).toList();
 
-                  List<Map<String, dynamic>> dataList =
-                      itemsList.map((barcode) {
-                    return {
-                      'name': barcode.name,
-                      'category': barcode.category,
-                      'size': barcode.size,
-                      'rate': barcode.rate,
-                      'barcode': barcode.barcode,
-                      'quantity': barcode.quantity,
-                      'isBeingReturned': barcode.isBeingReturned,
-                    };
-                  }).toList();
+            //       List<Map<String, dynamic>> dataList =
+            //           itemsList.map((barcode) {
+            //         return {
+            //           'name': barcode.name,
+            //           'category': barcode.category,
+            //           'size': barcode.size,
+            //           'rate': barcode.rate,
+            //           'barcode': barcode.barcode,
+            //           'quantity': barcode.quantity,
+            //           'isBeingReturned': barcode.isBeingReturned,
+            //         };
+            //       }).toList();
 
-                  if (isSplit == false) {
-                    if (isUpi == true || isPos == true) {
-                      printPdf(
-                        firmData,
-                        invoice: invoiceNum,
-                        dateTime: DateTime.parse(dateTime),
-                        totalQuantity: totalQuantity,
-                        netAmount: netAmount,
-                        itemsList: dataList,
-                        totalCgst: totalTax / 2,
-                        totalSgst: totalTax / 2,
-                        totalTax: totalTax,
-                        selectedModeOfPayment: isUpi ? 'UPI' : 'POS',
-                        discAmount: disc,
-                      );
-                    } else {
-                      printPdf(
-                        firmData,
-                        invoice: invoiceNum,
-                        dateTime: DateTime.parse(dateTime),
-                        totalQuantity: totalQuantity,
-                        netAmount: netAmount,
-                        itemsList: dataList,
-                        totalCgst: totalTax / 2,
-                        totalSgst: totalTax / 2,
-                        totalTax: totalTax,
-                        selectedModeOfPayment: 'CASH',
-                        discAmount: disc,
-                      );
-                    }
-                  } else {
-                    printPdf(
-                      firmData,
-                      isSplit: true,
-                      invoice: invoiceNum,
-                      dateTime: DateTime.parse(dateTime),
-                      totalQuantity: totalQuantity,
-                      cashAmount: cash,
-                      onlineAmount: online,
-                      netAmount: netAmount,
-                      itemsList: dataList,
-                      totalCgst: totalTax / 2,
-                      totalSgst: totalTax / 2,
-                      totalTax: totalTax,
-                      selectedModeOfPayment: isUpi ? 'UPI' : 'POS',
-                      discAmount: disc,
-                    );
-                  }
-                }
-              },
-            ),
+            //       if (isSplit == false) {
+            //         if (isUpi == true || isPos == true) {
+            //           printPdf(
+            //             firmData,
+            //             invoice: invoiceNum,
+            //             dateTime: DateTime.parse(dateTime),
+            //             totalQuantity: totalQuantity,
+            //             netAmount: netAmount,
+            //             itemsList: dataList,
+            //             totalCgst: totalTax / 2,
+            //             totalSgst: totalTax / 2,
+            //             totalTax: totalTax,
+            //             selectedModeOfPayment: isUpi ? 'UPI' : 'POS',
+            //             discAmount: disc,
+            //           );
+            //         } else {
+            //           printPdf(
+            //             firmData,
+            //             invoice: invoiceNum,
+            //             dateTime: DateTime.parse(dateTime),
+            //             totalQuantity: totalQuantity,
+            //             netAmount: netAmount,
+            //             itemsList: dataList,
+            //             totalCgst: totalTax / 2,
+            //             totalSgst: totalTax / 2,
+            //             totalTax: totalTax,
+            //             selectedModeOfPayment: 'CASH',
+            //             discAmount: disc,
+            //           );
+            //         }
+            //       } else {
+            //         printPdf(
+            //           firmData,
+            //           isSplit: true,
+            //           invoice: invoiceNum,
+            //           dateTime: DateTime.parse(dateTime),
+            //           totalQuantity: totalQuantity,
+            //           cashAmount: cash,
+            //           onlineAmount: online,
+            //           netAmount: netAmount,
+            //           itemsList: dataList,
+            //           totalCgst: totalTax / 2,
+            //           totalSgst: totalTax / 2,
+            //           totalTax: totalTax,
+            //           selectedModeOfPayment: isUpi ? 'UPI' : 'POS',
+            //           discAmount: disc,
+            //         );
+            //       }
+            //     }
+            //   },
+            // ),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();

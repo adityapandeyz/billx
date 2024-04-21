@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
+
 import 'package:flutter/material.dart';
 
 const backgroundColor = Color.fromARGB(255, 0, 0, 0);
@@ -47,4 +50,9 @@ showAlert(BuildContext context, text) {
       );
     },
   );
+}
+
+String hashPassword(String password) {
+  final encodedPassword = utf8.encode(password);
+  return sha256.convert(encodedPassword).toString();
 }

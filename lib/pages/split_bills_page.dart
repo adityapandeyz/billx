@@ -1,3 +1,4 @@
+import 'package:billx/models/split_bill.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -26,10 +27,28 @@ class _SplitBillsPageState extends State<SplitBillsPage> {
   DateTime focusedDate = DateTime.now();
   double? totalForTheDay;
 
+  List<SplitBill> billsForSelectedDate = [];
+
   @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    Provider.of<SplitBillProvider>(context, listen: false)
+        .loadSplitBills(context);
+    updateBillsForSelectedDate();
+  }
+
+  void updateBillsForSelectedDate() {
+    final billsList =
+        Provider.of<SplitBillProvider>(context, listen: false).splitBills;
+    billsForSelectedDate = billsList!.where((bill) {
+      DateTime billDate = DateTime.parse(bill.createdAt);
+      return isSameDay(billDate, selectedDate);
+    }).toList();
+
+    totalForTheDay = billsForSelectedDate.fold(
+      0,
+      (previousValue, bill) => previousValue! + bill.netAmount,
+    );
   }
 
   @override
@@ -185,6 +204,7 @@ class _SplitBillsPageState extends State<SplitBillsPage> {
                                 setState(() {
                                   selectedDate = selectedDay;
                                   focusedDate = focusedDay;
+                                  updateBillsForSelectedDate();
                                 });
                               },
                               eventLoader: (date) {
@@ -201,9 +221,9 @@ class _SplitBillsPageState extends State<SplitBillsPage> {
                               lastDay: DateTime(2050),
                             ),
                             SizedBox(
-                              height: 300,
+                              height: 260,
                               child: ListView.builder(
-                                itemCount: billsList.length,
+                                itemCount: billsForSelectedDate.length,
                                 shrinkWrap: true,
                                 itemBuilder: (BuildContext context, int index) {
                                   totalForTheDay =
@@ -230,7 +250,7 @@ class _SplitBillsPageState extends State<SplitBillsPage> {
                                     }
                                     return previousValue;
                                   });
-                                  final splitBill = billsList[index];
+                                  final splitBill = billsForSelectedDate[index];
                                   // Convert createdAt string to DateTime object
                                   DateTime billDate =
                                       DateTime.parse(splitBill.createdAt);

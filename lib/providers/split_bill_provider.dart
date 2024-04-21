@@ -72,24 +72,22 @@ class SplitBillProvider extends ChangeNotifier {
     context,
     searchText,
   ) {
-    {
-      if (splitBills != null) {
-        if (searchText.isEmpty) {
-          _filteredSplitBillList = List.from(_splitBillList!);
-        } else {
-          _filteredSplitBillList = _splitBillList!
-              .where((onlineBill) =>
-                  onlineBill.invoice
-                      .toUpperCase()
-                      .contains(searchText.toString().toUpperCase()) ||
-                  onlineBill.netAmount
-                      .toString()
-                      .toUpperCase()
-                      .contains(searchText.toString().toUpperCase()))
-              .toList();
-        }
-        notifyListeners();
+    if (splitBills != null) {
+      if (searchText.isEmpty) {
+        _filteredSplitBillList = List.from(_splitBillList!);
+      } else {
+        _filteredSplitBillList = _splitBillList!
+            .where((onlineBill) =>
+                onlineBill.invoice
+                    .toUpperCase()
+                    .contains(searchText.toString().toUpperCase()) ||
+                onlineBill.netAmount
+                    .toString()
+                    .toUpperCase()
+                    .contains(searchText.toString().toUpperCase()))
+            .toList();
       }
+      notifyListeners();
     }
   }
 

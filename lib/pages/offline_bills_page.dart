@@ -1,3 +1,4 @@
+import 'package:billx/models/offline_bill.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -26,11 +27,32 @@ class _OfflineBillsPageState extends State<OfflineBillsPage> {
   DateTime focusedDate = DateTime.now();
   double? totalForTheDay;
 
+  List<OfflineBill> billsForSelectedDate = [];
+
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
     Provider.of<OfflineBillProvider>(context, listen: false)
         .loadOfflineBills(context);
+    updateBillsForSelectedDate();
+  }
 
+  void updateBillsForSelectedDate() {
+    final billsList = Provider.of<OfflineBillProvider>(context, listen: false)
+        .offlineBillList;
+    billsForSelectedDate = billsList!.where((bill) {
+      DateTime billDate = DateTime.parse(bill.createdAt);
+      return isSameDay(billDate, selectedDate);
+    }).toList();
+
+    totalForTheDay = billsForSelectedDate.fold(
+      0,
+      (previousValue, bill) => previousValue! + bill.netAmount,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return CustomPage(
       onClose: () {
         Navigator.of(context).pop();
@@ -176,6 +198,7 @@ class _OfflineBillsPageState extends State<OfflineBillsPage> {
                                 setState(() {
                                   selectedDate = selectedDay;
                                   focusedDate = focusedDay;
+                                  updateBillsForSelectedDate();
                                 });
                               },
                               eventLoader: (date) {
@@ -192,9 +215,9 @@ class _OfflineBillsPageState extends State<OfflineBillsPage> {
                               lastDay: DateTime(2050),
                             ),
                             SizedBox(
-                              height: 300,
+                              height: 260,
                               child: ListView.builder(
-                                itemCount: billsList.length,
+                                itemCount: billsForSelectedDate.length,
                                 shrinkWrap: true,
                                 itemBuilder: (BuildContext context, int index) {
                                   totalForTheDay =
@@ -221,7 +244,8 @@ class _OfflineBillsPageState extends State<OfflineBillsPage> {
                                     }
                                     return previousValue;
                                   });
-                                  final offlineBill = billsList[index];
+                                  final offlineBill =
+                                      billsForSelectedDate[index];
                                   // Convert createdAt string to DateTime object
                                   DateTime billDate =
                                       DateTime.parse(offlineBill.createdAt);

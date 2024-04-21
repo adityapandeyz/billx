@@ -9,6 +9,7 @@ import '../models/category.dart';
 import '../models/item.dart';
 import '../models/offline_bill.dart';
 import '../models/online_bill.dart';
+import '../utils/utils.dart';
 
 class DatabaseHelper {
   // returns the instance of DatabaseHelper
@@ -190,7 +191,7 @@ class DatabaseHelper {
         'gstin': gstin.toUpperCase(),
         'phone': phone,
         'address': address,
-        'password': password,
+        'password': hashPassword(password),
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );

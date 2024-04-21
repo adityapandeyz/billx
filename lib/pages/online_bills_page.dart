@@ -1,3 +1,4 @@
+import 'package:billx/models/online_bill.dart';
 import 'package:billx/providers/online_bill_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -25,12 +26,32 @@ class _OnlineBillsPageState extends State<OnlineBillsPage> {
   DateTime selectedDate = DateTime.now();
   DateTime focusedDate = DateTime.now();
   double? totalForTheDay;
+  List<OnlineBill> billsForSelectedDate = [];
+
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<OnlineBillProvider>(context, listen: false)
+        .loadOnBills(context);
+    updateBillsForSelectedDate();
+  }
+
+  void updateBillsForSelectedDate() {
+    final billsList =
+        Provider.of<OnlineBillProvider>(context, listen: false).onlineBillList;
+    billsForSelectedDate = billsList!.where((bill) {
+      DateTime billDate = DateTime.parse(bill.createdAt);
+      return isSameDay(billDate, selectedDate);
+    }).toList();
+
+    totalForTheDay = billsForSelectedDate.fold(
+      0,
+      (previousValue, bill) => previousValue! + bill.netAmount,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<OnlineBillProvider>(context, listen: false)
-        .loadOnBills(context);
-
     return CustomPage(
       onClose: () {
         Navigator.of(context).pop();
@@ -184,6 +205,7 @@ class _OnlineBillsPageState extends State<OnlineBillsPage> {
                                 setState(() {
                                   selectedDate = selectedDay;
                                   focusedDate = focusedDay;
+                                  updateBillsForSelectedDate();
                                 });
                               },
                               eventLoader: (date) {
@@ -200,9 +222,9 @@ class _OnlineBillsPageState extends State<OnlineBillsPage> {
                               lastDay: DateTime(2050),
                             ),
                             SizedBox(
-                              height: 300,
+                              height: 260,
                               child: ListView.builder(
-                                itemCount: billsList.length,
+                                itemCount: billsForSelectedDate.length,
                                 shrinkWrap: true,
                                 itemBuilder: (BuildContext context, int index) {
                                   totalForTheDay =
@@ -229,7 +251,8 @@ class _OnlineBillsPageState extends State<OnlineBillsPage> {
                                     }
                                     return previousValue;
                                   });
-                                  final onlineBill = billsList[index];
+                                  final onlineBill =
+                                      billsForSelectedDate[index];
                                   // Convert createdAt string to DateTime object
                                   DateTime billDate =
                                       DateTime.parse(onlineBill.createdAt);

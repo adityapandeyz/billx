@@ -2,6 +2,8 @@ import 'package:billx/helpers/database_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
 
 import '../models/firm.dart';
 import '../providers/current_firm_provider.dart';
@@ -155,8 +157,9 @@ class _FirmsPageState extends State<FirmsPage> {
                                         Navigator.pop(context);
 
                                         // Check if entered password matches the firm's password
-                                        String enteredPassword =
-                                            loginPasswordController.text.trim();
+                                        String enteredPassword = hashPassword(
+                                          loginPasswordController.text.trim(),
+                                        );
                                         if (_firms[index].password ==
                                             enteredPassword) {
                                           Provider.of<CurrentFirmProvider>(
