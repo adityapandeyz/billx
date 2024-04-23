@@ -313,6 +313,7 @@ class _SplitBillsPageState extends State<SplitBillsPage> {
                                                   listen: false)
                                               .deleteSplitBill(
                                                   splitBill.id!, context);
+                                          updateBillsForSelectedDate();
                                         },
                                         onCancel: () {
                                           // Handle cancel if needed

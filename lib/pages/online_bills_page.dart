@@ -176,6 +176,7 @@ class _OnlineBillsPageState extends State<OnlineBillsPage> {
                                             listen: false)
                                         .deleteOnlineBill(
                                             onlineBill.id!, context);
+                                    updateBillsForSelectedDate();
                                   },
                                   onCancel: () {
                                     // Handle cancel if needed
@@ -315,6 +316,7 @@ class _OnlineBillsPageState extends State<OnlineBillsPage> {
                                                   listen: false)
                                               .deleteOnlineBill(
                                                   onlineBill.id!, context);
+                                          updateBillsForSelectedDate();
                                         },
                                         onCancel: () {
                                           // Handle cancel if needed

@@ -308,6 +308,7 @@ class _OfflineBillsPageState extends State<OfflineBillsPage> {
                                                   listen: false)
                                               .deleteOfflineBill(
                                                   offlineBill.id!, context);
+                                          updateBillsForSelectedDate();
                                         },
                                         onCancel: () {
                                           // Handle cancel if needed
@@ -335,7 +336,7 @@ class _OfflineBillsPageState extends State<OfflineBillsPage> {
                                   softWrap: true,
                                 ),
                                 Text(
-                                  '${totalForTheDay}',
+                                  '$totalForTheDay',
                                   style: GoogleFonts.lato(
                                     textStyle: Theme.of(context)
                                         .textTheme
